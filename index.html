@@ -86,9 +86,10 @@
                     Aonde Estou
                 </button>
 
-                <button class="square-btn" onclick="showScreen('cam')" style="background-color: #fd7e14;">
+                <!-- BOTÃO MBFT COM COR LARANJA QUE VOCÊ GOSTOU -->
+                <button class="square-btn" onclick="showScreen('mbft')" style="background-color: #fd7e14;">
                     <span class="icon">📖</span>
-                    Fisc. Veículos
+                    MBFT (Infrações)
                 </button>
 
                 <button class="square-btn" onclick="showScreen('links')">
@@ -137,8 +138,8 @@
             <div id="resultado" class="result-card hidden"></div>
         </div>
 
-        <!-- TELA 2: FISCALIZAÇÃO (Abas Normal / Caminhão) -->
-        <div id="cam" class="content hidden">
+        <!-- TELA 2: FISCALIZAÇÃO MBFT (Abas Normal / Caminhão) -->
+        <div id="mbft" class="content hidden">
             <div class="tab-container">
                 <button id="btn-aba-norm" class="tab-btn tab-ativa" onclick="mudarAbaMbft('norm')">🚗 Normal</button>
                 <button id="btn-aba-cam" class="tab-btn tab-inativa" onclick="mudarAbaMbft('cam')">🚛 Caminhão</button>
@@ -200,7 +201,8 @@
     <script>
         /* ====== LÓGICA DE NAVEGAÇÃO ====== */
         function showScreen(screenId) {
-            const telas = ['home', 'loc', 'gps', 'cam', 'links', 'vtr'];
+            // ATUALIZADO AQUI PARA mbft
+            const telas = ['home', 'loc', 'gps', 'mbft', 'links', 'vtr'];
             
             telas.forEach(t => {
                 const elemento = document.getElementById(t);
@@ -224,8 +226,8 @@
                 btnVoltar.style.display = 'block';
                 if (screenId === 'loc') titulo.innerText = "📍 Localização/Info";
                 if (screenId === 'gps') titulo.innerText = "🌍 Aonde Estou";
-                if (screenId === 'cam') {
-                    titulo.innerText = "📖 Fisc. Veículos";
+                if (screenId === 'mbft') {
+                    titulo.innerText = "📖 MBFT (Infrações)";
                     renderizarInfracoes(); 
                 }
                 if (screenId === 'links') { titulo.innerText = "🔗 Links Úteis"; renderizarListas(); }
