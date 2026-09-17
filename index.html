@@ -25,8 +25,8 @@
         /* Formulários e Inputs */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        .form-group select, .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        .form-group select:focus, .form-group input:focus { border-color: #007bff; outline: none; }
+        .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; font-family: Arial, sans-serif; }
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { border-color: #007bff; outline: none; }
         
         .result-card { background: #e9ecef; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #28a745; word-wrap: break-word; }
         .result-item { margin-bottom: 10px; font-size: 15px; }
@@ -73,13 +73,17 @@
         .bo-header strong { color: #2a3f54; font-size: 15px; width: 70%; }
         .btn-copiar { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copiar:active { background: #0056b3; transform: scale(0.95); }
-        .bo-texto { width: 100%; height: 120px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4;}
+        .bo-texto { width: 100%; height: 130px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4;}
+        .bo-texto[readonly] { background-color: #f4f4f4; color: #555; } /* Destaca que está bloqueado para o patrulheiro */
+        .bo-admin-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .btn-bo-edit { background: #ffc107; color: #333; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
+        .btn-bo-del { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
     </style>
 </head>
 <body>
     <script>
         window.onerror = function(msg, url, line) {
-            alert("❌ Erro de Copiar e Colar! Volte lá, copie desde o <!DOCTYPE html> até o </html> e cole novamente. O celular cortou o código na linha " + line);
+            alert("❌ Erro no código! O celular cortou algo na linha " + line + ". Mensagem: " + msg);
         };
     </script>
 
@@ -97,7 +101,7 @@
                 </button>
                 <button class="square-btn" onclick="showScreen('gps')" style="background-color: #28a745;">
                     <span class="icon">🌍</span>
-                    Aonde Estou
+                    Onde Estou
                 </button>
                 <button class="square-btn" onclick="showScreen('mbft')" style="background-color: #fd7e14;">
                     <span class="icon">📖</span>
@@ -107,7 +111,6 @@
                     <span class="icon">⚖️</span>
                     Embasamento
                 </button>
-                <!-- NOVO BOTÃO DE EXEMPLOS BO -->
                 <button class="square-btn" onclick="showScreen('bo')" style="background-color: #8e44ad;">
                     <span class="icon">📝</span>
                     Exemplos BO
@@ -159,7 +162,6 @@
         </div>
 
         <div id="mbft" class="content hidden">
-            <!-- Menu de Quadrados do MBFT -->
             <div id="mbft-categorias" class="grid-container" style="margin-top: 0;">
                 <button class="square-btn" style="background-color: #d35400; min-height: 100px;" onclick="abrirCategoriaMbft('top')">
                     <span class="icon">⭐</span>
@@ -183,7 +185,6 @@
                 </button>
             </div>
 
-            <!-- Conteúdo da Categoria (Oculto até clicar em um quadrado) -->
             <div id="mbft-conteudo" class="hidden">
                 <button class="btn-add" style="margin-bottom: 15px; background: #6c757d; font-size: 14px;" onclick="voltarCategoriasMbft()">⬅️ Escolher outra categoria</button>
                 
@@ -203,52 +204,39 @@
             <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 20px;">Cola rápida com exemplos para histórico e providências.</p>
             <div class="juridico-card"><strong>Apresentação da Ocorrência:</strong><span>Art. 66 da LCP, Art. 319 do CP;</span><span class="juridico-exemplo">Ex: A ocorrência foi apresentada de forma imediata à autoridade policial competente no DP para as providências de polícia judiciária.</span></div>
             <div class="juridico-card"><strong>Atribuição das Polícias Militares:</strong><span>Art. 144 § 5º da CF/88;</span><span class="juridico-exemplo">Ex: Atuação fundamentada na atribuição de polícia ostensiva e preservação da ordem pública na malha viária.</span></div>
-            <!-- ... outros cards jurídicos omitidos para não poluir, pois já estavam prontos no seu código original ... -->
+            <div class="juridico-card"><strong>Comunicação Social:</strong><span>Diretriz nº PM5-001/55/06;</span><span class="juridico-exemplo">Ex: Acionamento do Oficial/Imprensa ou registro fotográfico padronizado devido à vultosa apreensão de entorpecentes/contrabando.</span></div>
+            <div class="juridico-card"><strong>Condução das Partes:</strong><span>Art. 5º inciso LXIII da CF/88, Decreto Est. nº 29.911/89 §§ 1º e 2º, Súmula STF-11, ECA, Lei 9.099/95;</span><span class="juridico-exemplo">Ex: Condutor detido foi conduzido ao DP no compartimento de presos para garantir a segurança da guarnição, com seus direitos preservados.</span></div>
             <div class="juridico-card"><strong>Dano (Crimes):</strong><span>Art. 163, 164, 165, 166 e 167 do CP;</span><span class="juridico-exemplo">Ex: O indivíduo detido desferiu chutes e danificou o compartimento de presos da viatura durante a condução.</span></div>
+            <div class="juridico-card"><strong>Desacato:</strong><span>Art. 331 do CP;</span><span class="juridico-exemplo">Ex: O abordado ofendeu e menosprezou a guarnição em função de seu cargo, proferindo os seguintes dizeres: "seus vermes corruptos".</span></div>
             <div class="juridico-card"><strong>Desobediência:</strong><span>Art. 330 do CP;</span><span class="juridico-exemplo">Ex: O condutor desobedeceu ordem legal e direta de parada (sinais sonoros e luminosos) emanada pela equipe, empreendendo fuga.</span></div>
+            <div class="juridico-card"><strong>Exame de Corpo de Delito:</strong><span>Art. 158 e 167 do CPP;</span><span class="juridico-exemplo">Ex: A vítima/parte detida foi encaminhada primeiramente ao Pronto Socorro/IML para realização de exame cautelar devido às escoriações prévias.</span></div>
+            <div class="juridico-card"><strong>Inteligência:</strong><span>Art. 3º do Decreto Lei nº 667/69 e M-16 PM;</span><span class="juridico-exemplo">Ex: Coleta e difusão de dados do veículo suspeito interceptado para atualização do sistema de inteligência (atividade típica).</span></div>
+            <div class="juridico-card"><strong>Ocorrência com reféns:</strong><span>Resolução nº SSP-13/10;</span><span class="juridico-exemplo">Ex: Adoção das medidas iniciais de isolamento e contenção do local de crise (roubo a pedágio/ônibus) até a chegada do apoio especializado.</span></div>
+            <div class="juridico-card"><strong>Permanência no local crime:</strong><span>Art. 4º Res. SSP-382/99 e Res. SSP-13/10;</span><span class="juridico-exemplo">Ex: A guarnição permaneceu preservando o local e o veículo produto de crime até a chegada, análise e liberação por parte do Perito Criminal.</span></div>
             <div class="juridico-card"><strong>Poder de Polícia:</strong><span>Art. 78 do CTN;</span><span class="juridico-exemplo">Ex: Fundamento legal utilizado pela equipe para montar o bloqueio viário, abordar o veículo e fiscalizar a documentação ou carga.</span></div>
+            <div class="juridico-card"><strong>Preceitos Constitucionais:</strong><span>Art. 5º e incisos da CF/88;</span><span class="juridico-exemplo">Ex: Durante toda a intervenção, foi assegurado ao detido o direito de permanecer calado e garantida a sua integridade física e moral.</span></div>
+            <div class="juridico-card"><strong>Preservação do local crime:</strong><span>Art. 169 do CPP, Resolução SSP-382/99;</span><span class="juridico-exemplo">Ex: Isolamento e guarnecimento da rodovia em acidente de trânsito com vítima fatal, impedindo a alteração do estado das coisas até a perícia.</span></div>
+            <div class="juridico-card"><strong>Testemunha:</strong><span>Art. 202 e 206 do CPP;</span><span class="juridico-exemplo">Ex: Arrolamento e qualificação do funcionário da concessionária / transeunte que presenciou a dinâmica do acidente ou crime.</span></div>
             <div class="juridico-card"><strong>Uso de Algemas:</strong><span>Súmula Vinculante 11 do STF, Art. 284 do CPP e Decreto nº 8.858/2016;</span><span class="juridico-exemplo">Ex: Uso excepcional e justificado pelo fundado receio de fuga e perigo à integridade física do preso e da guarnição.</span></div>
             <div class="juridico-card"><strong>Uso de Força Física:</strong><span>Art. 284 do CPP, POP-PM;</span><span class="juridico-exemplo">Ex: Necessário emprego moderado e proporcional de força física e técnicas de imobilização estritamente para vencer a resistência.</span></div>
+            <div class="juridico-card"><strong>Uso de Força Letal:</strong><span>Nota de Instrução nº PM3-001/02/96;</span><span class="juridico-exemplo">Ex: Disparo de arma de fogo efetuado para repelir agressão injusta e iminente contra a vida do policial (legítima defesa).</span></div>
         </div>
 
-        <!-- NOVA ABA: EXEMPLOS BO -->
         <div id="bo" class="content hidden">
             <h3 style="color: #2a3f54; text-align: center; margin-top: 0;">📝 Modelos de BO</h3>
-            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 20px;">Edite ou copie os textos padrão abaixo para agilizar o histórico da ocorrência.</p>
+            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 20px;">Use o botão Copiar. Apenas o Administrador pode modificar o texto base.</p>
             
-            <div class="bo-card">
-                <div class="bo-header">
-                    <strong>Alcoolemia (Bafômetro Positivo)</strong>
-                    <button class="btn-copiar" onclick="copiarBO('texto-bo-1')">📋 Copiar</button>
-                </div>
-                <textarea id="texto-bo-1" class="bo-texto">Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro.</textarea>
+            <button class="btn-admin-login" onclick="abrirAdmin('bo')">⚙️ Acesso Adm</button>
+            <div style="clear: both;"></div>
+
+            <div id="admin-panel-bo" class="admin-panel">
+                <h4>Adicionar Novo Modelo</h4>
+                <input type="text" id="bo-titulo" placeholder="Título (Ex: Embriaguez)" class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 5px;">
+                <textarea id="bo-texto-add" placeholder="Cole o texto padrão do histórico do BO aqui..." class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 10px; height: 80px; resize: vertical;"></textarea>
+                <button class="btn-add" onclick="adicionarItem('bo')">+ Salvar Novo Modelo</button>
             </div>
 
-            <div class="bo-card">
-                <div class="bo-header">
-                    <strong>Sinistro de Trânsito sem Vítima</strong>
-                    <button class="btn-copiar" onclick="copiarBO('texto-bo-2')">📋 Copiar</button>
-                </div>
-                <textarea id="texto-bo-2" class="bo-texto">Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L.</textarea>
-            </div>
-
-            <div class="bo-card">
-                <div class="bo-header">
-                    <strong>Recusa ao Teste de Etilômetro</strong>
-                    <button class="btn-copiar" onclick="copiarBO('texto-bo-3')">📋 Copiar</button>
-                </div>
-                <textarea id="texto-bo-3" class="bo-texto">Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local.</textarea>
-            </div>
-
-            <div class="bo-card">
-                <div class="bo-header">
-                    <strong>Apreensão de Veículo (Licenciamento)</strong>
-                    <button class="btn-copiar" onclick="copiarBO('texto-bo-4')">📋 Copiar</button>
-                </div>
-                <textarea id="texto-bo-4" class="bo-texto">Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária.</textarea>
-            </div>
-            
-            <p style="font-size: 12px; color: #999; text-align: center;">Para adicionar novos exemplos, basta copiar o bloco HTML da classe "bo-card" no código fonte.</p>
+            <div id="lista-bo"></div>
         </div>
 
         <div id="links" class="content hidden">
@@ -307,9 +295,9 @@
             } else {
                 btnVoltar.style.display = 'block';
                 if (screenId === 'loc') titulo.innerText = "📍 Localização/Info";
-                if (screenId === 'gps') titulo.innerText = "🌍 Aonde Estou";
+                if (screenId === 'gps') titulo.innerText = "🌍 Onde Estou";
                 if (screenId === 'juridico') titulo.innerText = "⚖️ Embasamento";
-                if (screenId === 'bo') titulo.innerText = "📝 Exemplos BO";
+                if (screenId === 'bo') { titulo.innerText = "📝 Exemplos BO"; renderizarListas(); }
                 if (screenId === 'mbft') {
                     titulo.innerText = "📖 MBFT (Infrações)";
                     voltarCategoriasMbft(); 
@@ -323,13 +311,22 @@
         function copiarBO(idTexto) {
             const areaTexto = document.getElementById(idTexto);
             areaTexto.select();
-            areaTexto.setSelectionRange(0, 99999); /* Para suportar celulares */
+            areaTexto.setSelectionRange(0, 99999);
             
             navigator.clipboard.writeText(areaTexto.value).then(() => {
-                alert("✅ Histórico copiado! Agora é só colar no sistema.");
+                alert("✅ Histórico copiado! Cole no sistema e edite os espaços em branco lá.");
             }).catch(err => {
                 alert("❌ Erro ao copiar. Tente selecionar o texto manualmente.");
             });
+        }
+
+        function salvarEdicaoBO(index) {
+            const novoTexto = document.getElementById('texto-bo-' + index).value;
+            let bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
+            bos[index].texto = novoTexto;
+            salvarDadosSeguro('app_bo_modelos_v1', bos);
+            alert("💾 Alteração fixa salva com sucesso para todos os usuários!");
+            renderizarListas();
         }
 
         // --- BANCOS DE DADOS DE INFRAÇÕES ---
@@ -431,7 +428,6 @@
             } else if (abaAtivaMbft === 'cam') {
                 listaBase = bancoInfracoesCaminhao;
             } else if (abaAtivaMbft === 'pesq') {
-                // Junta todas e remove duplicadas pelo número do artigo
                 listaBase = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao, ...bancoInfracoesGeral];
                 listaBase = listaBase.filter((v,i,a) => a.findIndex(v2 => (v2.artigo === v.artigo)) === i);
             }
@@ -779,6 +775,14 @@
             {"pelotao": "3", "tipo": "SPM", "numero": "326 D", "km_ini": 339.3, "km_fim": 341.2, "municipio": "Jaboticabal", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
             {"pelotao": "3", "tipo": "SPM", "numero": "326 E", "km_ini": 299.82, "km_fim": 300.4, "municipio": "Matão", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"}
         ];
+
+        // --- BANCO DE DADOS DE MODELOS DE BO ---
+        const boPadrao = [
+            { titulo: "Alcoolemia (Bafômetro Positivo)", texto: "Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro." },
+            { titulo: "Sinistro de Trânsito sem Vítima", texto: "Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L." },
+            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." },
+            { titulo: "Apreensão de Veículo (Licenciamento)", texto: "Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária." }
+        ];
         
         let dpsContatos = {};
         let ccoContatos = {};
@@ -925,6 +929,7 @@
             }
             if (tipo === 'links') document.getElementById('admin-panel-links').style.display = 'block';
             if (tipo === 'vtr') document.getElementById('admin-panel-vtr').style.display = 'block';
+            if (tipo === 'bo') document.getElementById('admin-panel-bo').style.display = 'block';
             if (tipo === 'dps') {
                 document.getElementById('admin-panel-dps').style.display = 'block';
                 renderizarEdicaoDPs();
@@ -1025,54 +1030,97 @@
                 salvarDadosSeguro('app_links_vtr_v3', vtrs);
                 document.getElementById('vtr-nome').value = '';
                 document.getElementById('vtr-url').value = '';
+            } else if (tipo === 'bo') {
+                const titulo = document.getElementById('bo-titulo').value.trim();
+                const texto = document.getElementById('bo-texto-add').value.trim();
+                if (!titulo || !texto) return alert("Preencha o título e o texto do modelo de BO!");
+                let bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
+                bos.push({ titulo, texto });
+                salvarDadosSeguro('app_bo_modelos_v1', bos);
+                document.getElementById('bo-titulo').value = '';
+                document.getElementById('bo-texto-add').value = '';
             }
             renderizarListas();
         }
 
         function excluirItem(tipo, index) {
-            if (confirm("Tem certeza que deseja excluir?")) {
+            if (confirm("Tem certeza que deseja excluir este item?")) {
                 if(tipo === 'links') {
                     let dados = obterListaLocal('app_links_uteis_v3', linksPadrao);
                     dados.splice(index, 1);
                     salvarDadosSeguro('app_links_uteis_v3', dados);
-                } else {
+                } else if (tipo === 'vtr') {
                     let dados = obterListaLocal('app_links_vtr_v3', vtrsPadrao);
                     dados.splice(index, 1);
                     salvarDadosSeguro('app_links_vtr_v3', dados);
+                } else if (tipo === 'bo') {
+                    let dados = obterListaLocal('app_bo_modelos_v1', boPadrao);
+                    dados.splice(index, 1);
+                    salvarDadosSeguro('app_bo_modelos_v1', dados);
                 }
                 renderizarListas();
             }
         }
 
         function renderizarListas() {
+            // Links
             const divLinks = document.getElementById('lista-links');
-            const divVtr = document.getElementById('lista-vtr');
-            
             const links = obterListaLocal('app_links_uteis_v3', linksPadrao);
-            divLinks.innerHTML = '';
-            if (links.length === 0) divLinks.innerHTML = '<p style="text-align:center; color:#666;">Nenhum link cadastrado.</p>';
-            links.forEach((item, index) => {
-                divLinks.innerHTML += `
-                    <div class="list-item">
-                        <span>${item.nome}</span>
-                        <a href="${item.url}" target="_blank">${item.url}</a>
-                        ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('links', ${index})">🗑️ Excluir</span>` : ''}
-                    </div>
-                `;
-            });
+            if (divLinks) {
+                divLinks.innerHTML = '';
+                if (links.length === 0) divLinks.innerHTML = '<p style="text-align:center; color:#666;">Nenhum link cadastrado.</p>';
+                links.forEach((item, index) => {
+                    divLinks.innerHTML += `
+                        <div class="list-item">
+                            <span>${item.nome}</span>
+                            <a href="${item.url}" target="_blank">${item.url}</a>
+                            ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('links', ${index})">🗑️ Excluir</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
             
+            // VTRs
+            const divVtr = document.getElementById('lista-vtr');
             const vtrs = obterListaLocal('app_links_vtr_v3', vtrsPadrao);
-            divVtr.innerHTML = '';
-            if (vtrs.length === 0) divVtr.innerHTML = '<p style="text-align:center; color:#666;">Nenhuma VTR cadastrada.</p>';
-            vtrs.forEach((item, index) => {
-                divVtr.innerHTML += `
-                    <div class="list-item">
-                        <span>${item.nome}</span>
-                        <a href="${item.url}" target="_blank">${item.url}</a>
-                        ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('vtr', ${index})">🗑️ Excluir</span>` : ''}
-                    </div>
-                `;
-            });
+            if (divVtr) {
+                divVtr.innerHTML = '';
+                if (vtrs.length === 0) divVtr.innerHTML = '<p style="text-align:center; color:#666;">Nenhuma VTR cadastrada.</p>';
+                vtrs.forEach((item, index) => {
+                    divVtr.innerHTML += `
+                        <div class="list-item">
+                            <span>${item.nome}</span>
+                            <a href="${item.url}" target="_blank">${item.url}</a>
+                            ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('vtr', ${index})">🗑️ Excluir</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            // BOs
+            const divBo = document.getElementById('lista-bo');
+            const bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
+            if (divBo) {
+                divBo.innerHTML = '';
+                if (bos.length === 0) divBo.innerHTML = '<p style="text-align:center; color:#666;">Nenhum modelo de BO cadastrado.</p>';
+                bos.forEach((item, index) => {
+                    divBo.innerHTML += `
+                        <div class="bo-card">
+                            <div class="bo-header">
+                                <strong>${item.titulo}</strong>
+                                <button class="btn-copiar" onclick="copiarBO('texto-bo-${index}')">📋 Copiar</button>
+                            </div>
+                            <textarea id="texto-bo-${index}" class="bo-texto" ${isAdminLogado ? '' : 'readonly'}>${item.texto}</textarea>
+                            ${isAdminLogado ? `
+                                <div class="bo-admin-actions">
+                                    <button class="btn-bo-edit" onclick="salvarEdicaoBO(${index})">💾 Salvar Edição</button>
+                                    <button class="btn-bo-del" onclick="excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
         }
 
         window.onload = function() {
@@ -1081,6 +1129,7 @@
                 const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
                 populateSelect(pelotaoSelect, pelotoes, 'º Pelotão');
                 updateRodovias();
+                renderizarListas();
             } catch(err) {
                 console.error("Erro na inicialização: " + err);
             }
