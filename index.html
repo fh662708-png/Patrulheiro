@@ -69,19 +69,22 @@
 
         /* Estilos Exemplos de BO */
         .bo-card { background: #fff; border: 1px solid #ddd; border-left: 5px solid #8e44ad; border-radius: 8px; margin-bottom: 15px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .bo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .bo-header strong { color: #2a3f54; font-size: 15px; flex: 1; margin-right: 10px; line-height: 1.2; }
-        .bo-header-btns { display: flex; gap: 5px; }
-        .btn-visualizar { background: #17a2b8; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .bo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+        .bo-header strong { color: #2a3f54; font-size: 15px; flex: 1; min-width: 100px; margin-top: 5px;}
+        .bo-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        .btn-visualizar { background: #17a2b8; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-visualizar:active { background: #138496; transform: scale(0.95); }
-        .btn-copiar { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-copiar { background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copiar:active { background: #0056b3; transform: scale(0.95); }
         
-        .bo-texto { width: 100%; height: 130px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4; margin-top: 10px;}
+        .bo-texto { width: 100%; height: 160px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4; margin-top: 10px;}
         .bo-texto[readonly] { background-color: #f4f4f4; color: #555; }
         .bo-admin-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
         .btn-bo-edit { background: #ffc107; color: #333; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
         .btn-bo-del { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
+        
+        /* Tag Nuvem */
+        .nuvem-status { text-align: center; font-size: 12px; color: #28a745; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -93,37 +96,38 @@
 
     <div class="container">
         <div class="header">
-            <button id="btn-voltar" class="btn-voltar-header" onclick="showScreen('home')">⬅️</button>
+            <button id="btn-voltar" class="btn-voltar-header" onclick="window.showScreen('home')">⬅️</button>
             <h2 id="tela-titulo">🚓 PATRULHEIRO</h2>
         </div>
         
         <div id="home" class="content">
+            <div class="nuvem-status">☁️ Conectado à Nuvem do 3º BPRv</div>
             <div class="grid-container">
-                <button class="square-btn" onclick="showScreen('loc')">
+                <button class="square-btn" onclick="window.showScreen('loc')">
                     <span class="icon">📍</span>
                     Localização / Info
                 </button>
-                <button class="square-btn" onclick="showScreen('gps')" style="background-color: #28a745;">
+                <button class="square-btn" onclick="window.showScreen('gps')" style="background-color: #28a745;">
                     <span class="icon">🌍</span>
                     Onde Estou
                 </button>
-                <button class="square-btn" onclick="showScreen('mbft')" style="background-color: #fd7e14;">
+                <button class="square-btn" onclick="window.showScreen('mbft')" style="background-color: #fd7e14;">
                     <span class="icon">📖</span>
                     MBFT (Infrações)
                 </button>
-                <button class="square-btn" onclick="showScreen('juridico')" style="background-color: #6c757d;">
+                <button class="square-btn" onclick="window.showScreen('juridico')" style="background-color: #6c757d;">
                     <span class="icon">⚖️</span>
                     Embasamento
                 </button>
-                <button class="square-btn" onclick="showScreen('bo')" style="background-color: #8e44ad;">
+                <button class="square-btn" onclick="window.showScreen('bo')" style="background-color: #8e44ad;">
                     <span class="icon">📝</span>
                     Exemplos BO
                 </button>
-                <button class="square-btn" onclick="showScreen('links')">
+                <button class="square-btn" onclick="window.showScreen('links')">
                     <span class="icon">🔗</span>
                     Links Úteis
                 </button>
-                <button class="square-btn" onclick="showScreen('vtr')" style="grid-column: span 2;">
+                <button class="square-btn" onclick="window.showScreen('vtr')" style="grid-column: span 2;">
                     <span class="icon">🚓</span>
                     Links VTR
                 </button>
@@ -131,7 +135,7 @@
         </div>
 
         <div id="gps" class="content hidden">
-            <button class="btn-add" onclick="buscarLocalReal()" style="padding: 15px; font-size: 16px;">📍 Buscar Minha Localização Atual</button>
+            <button class="btn-add" onclick="window.buscarLocalReal()" style="padding: 15px; font-size: 16px;">📍 Buscar Minha Localização Atual</button>
             <div id="painel-resultado-geo" class="result-card hidden" style="margin-top: 15px;">
                 Clique no botão acima para ligar o GPS e buscar sua localização.
             </div>
@@ -139,11 +143,11 @@
         </div>
 
         <div id="loc" class="content hidden">
-            <button class="btn-admin-login" onclick="abrirAdmin('dps')">⚙️ Acesso Adm</button>
+            <button class="btn-admin-login" onclick="window.abrirAdmin('dps')">⚙️ Acesso Adm</button>
             <div style="clear: both;"></div>
             <div id="admin-panel-dps" class="admin-panel">
                 <h4>Editar Contatos Locais</h4>
-                <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 15px;">Altere os números e clique em Salvar.</p>
+                <p style="font-size: 13px; color: #666; margin-top: 0; margin-bottom: 15px;">Salva automaticamente na nuvem para todos.</p>
                 <h5 style="color: #333; margin-bottom: 5px;">📞 CCO (Por Conservação)</h5>
                 <div id="lista-editar-ccos" style="max-height: 200px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;"></div>
                 <h5 style="color: #333; margin-bottom: 5px;">🚔 DP (Por Município)</h5>
@@ -167,36 +171,36 @@
 
         <div id="mbft" class="content hidden">
             <div id="mbft-categorias" class="grid-container" style="margin-top: 0;">
-                <button class="square-btn" style="background-color: #d35400; min-height: 100px;" onclick="abrirCategoriaMbft('top')">
+                <button class="square-btn" style="background-color: #d35400; min-height: 100px;" onclick="window.abrirCategoriaMbft('top')">
                     <span class="icon">⭐</span>
                     As 15+
                 </button>
-                <button class="square-btn" style="background-color: #007bff; min-height: 100px;" onclick="abrirCategoriaMbft('norm')">
+                <button class="square-btn" style="background-color: #007bff; min-height: 100px;" onclick="window.abrirCategoriaMbft('norm')">
                     <span class="icon">🚗</span>
                     Veículo
                 </button>
-                <button class="square-btn" style="background-color: #28a745; min-height: 100px;" onclick="abrirCategoriaMbft('moto')">
+                <button class="square-btn" style="background-color: #28a745; min-height: 100px;" onclick="window.abrirCategoriaMbft('moto')">
                     <span class="icon">🏍️</span>
                     Moto
                 </button>
-                <button class="square-btn" style="background-color: #6c757d; min-height: 100px;" onclick="abrirCategoriaMbft('cam')">
+                <button class="square-btn" style="background-color: #6c757d; min-height: 100px;" onclick="window.abrirCategoriaMbft('cam')">
                     <span class="icon">🚛</span>
                     Caminhão
                 </button>
-                <button class="square-btn" style="grid-column: span 2; background-color: #17a2b8; min-height: 80px; flex-direction: row; gap: 15px; justify-content: center;" onclick="abrirCategoriaMbft('pesq')">
+                <button class="square-btn" style="grid-column: span 2; background-color: #17a2b8; min-height: 80px; flex-direction: row; gap: 15px; justify-content: center;" onclick="window.abrirCategoriaMbft('pesq')">
                     <span class="icon" style="margin-bottom: 0;">🔍</span>
                     Pesquisa Livre
                 </button>
             </div>
 
             <div id="mbft-conteudo" class="hidden">
-                <button class="btn-add" style="margin-bottom: 15px; background: #6c757d; font-size: 14px;" onclick="voltarCategoriasMbft()">⬅️ Escolher outra categoria</button>
+                <button class="btn-add" style="margin-bottom: 15px; background: #6c757d; font-size: 14px;" onclick="window.voltarCategoriasMbft()">⬅️ Escolher outra categoria</button>
                 
                 <h3 id="mbft-titulo-cat" style="color: #2a3f54; margin-top: 0;"></h3>
                 <p id="mbft-aviso" style="font-size: 13px; color: #666; margin-top: -10px; margin-bottom: 15px;"></p>
 
                 <div class="form-group">
-                    <input type="text" id="busca-infra" placeholder="🔍 Digite para filtrar (ex: pneu, viseira, cinto)..." onkeyup="filtrarInfracoes()" style="border: 2px solid #2a3f54;">
+                    <input type="text" id="busca-infra" placeholder="🔍 Digite para filtrar (ex: pneu, viseira, cinto)..." onkeyup="window.filtrarInfracoes()" style="border: 2px solid #2a3f54;">
                 </div>
                 
                 <div id="lista-infracoes"></div>
@@ -228,19 +232,22 @@
 
         <div id="bo" class="content hidden">
             <h3 style="color: #2a3f54; text-align: center; margin-top: 0;">📝 Modelos de BO</h3>
-            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 20px;">Use o botão Copiar. Apenas o Administrador pode modificar o texto base.</p>
+            <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 20px;">Use o botão <b>Ver</b> ou <b>Copiar</b>. Apenas o ADM altera a base.</p>
             
-            <button class="btn-admin-login" onclick="abrirAdmin('bo')">⚙️ Acesso Adm</button>
+            <button class="btn-admin-login" onclick="window.abrirAdmin('bo')">⚙️ Acesso Adm</button>
             <div style="clear: both;"></div>
 
             <div id="admin-panel-bo" class="admin-panel">
                 <h4>Adicionar Novo Modelo</h4>
+                <p style="font-size: 12px; margin-top: -5px; color: #666;">Como Administrador, o modelo vai pra nuvem na hora.</p>
                 <input type="text" id="bo-titulo" placeholder="Título (Ex: Embriaguez)" class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 5px;">
                 <textarea id="bo-texto-add" placeholder="Cole o texto padrão do histórico do BO aqui..." class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 10px; height: 80px; resize: vertical;"></textarea>
-                <button class="btn-add" onclick="adicionarItem('bo')">+ Salvar Novo Modelo</button>
+                <button class="btn-add" onclick="window.adicionarItem('bo')">+ Salvar Novo Modelo na Nuvem</button>
             </div>
 
-            <div id="lista-bo"></div>
+            <div id="lista-bo">
+                <p style="text-align:center; color:#666;">Carregando modelos da nuvem...</p>
+            </div>
         </div>
 
         <div id="links" class="content hidden">
@@ -249,15 +256,17 @@
                 <div class="result-item" style="font-size: 14px;"><span>🚗 Carro e Semi Reboque:</span><br>JUL 1-2 | AGO 3-4 | SET 5-6 | OUT 7-8 | NOV 9 | DEZ 0</div>
                 <div class="result-item" style="font-size: 14px; margin-bottom: 0;"><span>🚛 Caminhão:</span><br>SET 1-2 | OUT 3-4-5 | NOV 6-7-8 | DEZ 9-0</div>
             </div>
-            <button class="btn-admin-login" onclick="abrirAdmin('links')">⚙️ Acesso Adm</button>
+            <button class="btn-admin-login" onclick="window.abrirAdmin('links')">⚙️ Acesso Adm</button>
             <div style="clear: both;"></div>
             <div id="admin-panel-links" class="admin-panel">
                 <h4>Adicionar Novo Link Útil</h4>
                 <input type="text" id="link-nome" placeholder="Nome do Sistema/Site" class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 5px;">
                 <input type="url" id="link-url" placeholder="https://..." class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 10px;">
-                <button class="btn-add" onclick="adicionarItem('links')">+ Salvar Link</button>
+                <button class="btn-add" onclick="window.adicionarItem('links')">+ Salvar Link na Nuvem</button>
             </div>
-            <div id="lista-links" class="list-container"></div>
+            <div id="lista-links" class="list-container">
+                <p style="text-align:center; color:#666;">Carregando links da nuvem...</p>
+            </div>
         </div>
 
         <div id="vtr" class="content hidden">
@@ -265,312 +274,98 @@
                 <h4 style="margin-top:0; margin-bottom: 5px; color: #004085;">⛽ CONTROLE DE TRÁFEGO & ABASTECIMENTO</h4>
                 <span style="font-size: 14px; color: #333;">Acesse abaixo os formulários de cada viatura.</span>
             </div>
-            <button class="btn-admin-login" onclick="abrirAdmin('vtr')">⚙️ Acesso Adm</button>
+            <button class="btn-admin-login" onclick="window.abrirAdmin('vtr')">⚙️ Acesso Adm</button>
             <div style="clear: both;"></div>
             <div id="admin-panel-vtr" class="admin-panel">
                 <h4>Adicionar VTR</h4>
                 <input type="text" id="vtr-nome" placeholder="Prefixo da VTR (Ex: R-03210)" class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 5px;">
                 <input type="url" id="vtr-url" placeholder="Link da VTR (https://...)" class="form-group input" style="width: 100%; padding: 8px; margin-bottom: 10px;">
-                <button class="btn-add" onclick="adicionarItem('vtr')">+ Salvar VTR</button>
+                <button class="btn-add" onclick="window.adicionarItem('vtr')">+ Salvar VTR na Nuvem</button>
             </div>
-            <div id="lista-vtr" class="list-container"></div>
+            <div id="lista-vtr" class="list-container">
+                <p style="text-align:center; color:#666;">Carregando VTRs da nuvem...</p>
+            </div>
         </div>
     </div>
 
-    <script>
-        function showScreen(screenId) {
-            const telas = ['home', 'loc', 'gps', 'mbft', 'juridico', 'links', 'vtr', 'bo'];
-            telas.forEach(t => {
-                const elemento = document.getElementById(t);
-                if (elemento) {
-                    elemento.classList.add('hidden');
-                }
-            });
-            const telaAtiva = document.getElementById(screenId);
-            if (telaAtiva) {
-                telaAtiva.classList.remove('hidden');
-            }
-            const titulo = document.getElementById('tela-titulo');
-            const btnVoltar = document.getElementById('btn-voltar');
-            
-            if (screenId === 'home') {
-                titulo.innerText = "🚓 PATRULHEIRO";
-                btnVoltar.style.display = 'none';
-            } else {
-                btnVoltar.style.display = 'block';
-                if (screenId === 'loc') titulo.innerText = "📍 Localização/Info";
-                if (screenId === 'gps') titulo.innerText = "🌍 Onde Estou";
-                if (screenId === 'juridico') titulo.innerText = "⚖️ Embasamento";
-                if (screenId === 'bo') { titulo.innerText = "📝 Exemplos BO"; renderizarListas(); }
-                if (screenId === 'mbft') {
-                    titulo.innerText = "📖 MBFT (Infrações)";
-                    voltarCategoriasMbft(); 
-                }
-                if (screenId === 'links') { titulo.innerText = "🔗 Links Úteis"; renderizarListas(); }
-                if (screenId === 'vtr') { titulo.innerText = "🚓 Links VTR"; renderizarListas(); }
-            }
-        }
+    <!-- SCRIPT TIPO MODULE COM FIREBASE V12 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
-        // --- FUNÇÕES DOS EXEMPLOS DE BO ---
-        function toggleBO(index) {
-            const conteudo = document.getElementById('bo-conteudo-' + index);
-            const btn = document.getElementById('btn-visu-' + index);
-            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
-                conteudo.style.display = 'block';
-                btn.innerHTML = '➖ Ocultar';
-                btn.style.background = '#6c757d';
-            } else {
-                conteudo.style.display = 'none';
-                btn.innerHTML = '👁️ Ver';
-                btn.style.background = '#17a2b8';
-            }
-        }
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcyjWfccO9bpWodTq7J0j3llzTyQpl44Y",
+            authDomain: "patrulheiro-1c499.firebaseapp.com",
+            databaseURL: "https://patrulheiro-1c499-default-rtdb.firebaseio.com",
+            projectId: "patrulheiro-1c499",
+            storageBucket: "patrulheiro-1c499.firebasestorage.app",
+            messagingSenderId: "701765264544",
+            appId: "1:701765264544:web:5a5c823a53a18b4fb395c5"
+        };
 
-        function copiarBO(index) {
-            const areaTexto = document.getElementById('texto-bo-' + index);
-            const conteudo = document.getElementById('bo-conteudo-' + index);
-            
-            // Abre a caixa de texto se estiver oculta para poder selecionar
-            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
-                toggleBO(index);
-            }
-            
-            areaTexto.select();
-            areaTexto.setSelectionRange(0, 99999);
-            
-            navigator.clipboard.writeText(areaTexto.value).then(() => {
-                alert("✅ Histórico copiado! Cole no sistema e edite os espaços em branco lá.");
-            }).catch(err => {
-                alert("❌ Erro ao copiar. Tente selecionar o texto manualmente.");
-            });
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        function salvarEdicaoBO(index) {
-            const novoTexto = document.getElementById('texto-bo-' + index).value;
-            let bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
-            bos[index].texto = novoTexto;
-            salvarDadosSeguro('app_bo_modelos_v1', bos);
-            alert("💾 Alteração fixa salva com sucesso para todos os usuários!");
-            renderizarListas();
-        }
-
-        // --- BANCOS DE DADOS DE INFRAÇÕES ---
+        // --- VARIÁVEIS GLOBAIS E ESTADOS ---
+        let isAdminLogado = false;
         let abaAtivaMbft = '';
-
-        const bancoInfracoesTop15 = [
-            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 203, V", tema: "Ultrapassagem em Faixa Contínua", descricao: "Ultrapassar pela contramão onde houver marcação viária longitudinal contínua amarela.", autuar: "Veículo executando a ultrapassagem invadindo a contramão.", naoAutuar: "Veículo apenas transita com as rodas sobre a linha (Art. 185).", medida: "Autuação (Gravíssima x5).", rd: "NÃO" },
-            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 193", tema: "Transitar pelo Acostamento", descricao: "Transitar com o veículo em acostamentos.", autuar: "Veículo utilizando o acostamento como faixa de rolamento (comum em congestionamento).", naoAutuar: "Acesso a lotes lindeiros ou imobilização de emergência.", medida: "Autuação (Gravíssima x3).", rd: "NÃO" },
-            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 252, VI / P. Único", tema: "Uso do Celular", descricao: "Dirigir segurando ou manuseando telefone celular.", autuar: "Condutor digitando/lendo no colo (manuseando) ou com aparelho na orelha (segurando).", naoAutuar: "Celular fixado no painel usado como GPS, sem o condutor manusear.", medida: "Autuação (Gravíssima).", rd: "NÃO" },
-            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 167", tema: "Sem Cinto de Segurança", descricao: "Deixar o condutor ou passageiro de usar o cinto.", autuar: "Constatado condutor ou passageiros (inclusive no banco traseiro) sem cinto com veículo em movimento.", naoAutuar: "Veículo manobrando lentamente em posto de combustível/estacionamento.", medida: "Autuação (Grave). Se for abordado: reter até colocação.", rd: "NÃO" },
-            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 250, I, 'b'", tema: "Farol Apagado (Luz Baixa)", descricao: "Deixar de manter a luz baixa de dia em rodovia de pista simples.", autuar: "Veículo sem DRL de fábrica, com farol apagado, transitando fora do perímetro urbano.", naoAutuar: "Pista dupla, veículo com DRL ligado de fábrica, ou dentro de trecho urbano.", medida: "Autuação (Média).", rd: "NÃO" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 165 / 165-A", tema: "Embriaguez / Recusa Bafômetro", descricao: "Dirigir sob influência de álcool ou recusar-se ao teste.", autuar: "Bafômetro positivo (≥ 0,05 mg/L) ou recusa expressa ao teste.", naoAutuar: "Resultado até 0,04 mg/L (margem de erro do aparelho).", medida: "Retenção do veículo, Recolhimento da CNH. Condução se ≥ 0,34 mg/L.", rd: "SIM (Da CNH)" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, V", tema: "Licenciamento Atrasado", descricao: "Conduzir veículo não registrado ou não licenciado.", autuar: "CRLV vencido conforme calendário do DETRAN, sem comprovante de pagamento válido.", naoAutuar: "Motorista pagou recentemente e apresenta comprovante bancário válido.", medida: "Remoção ao pátio.", rd: "NÃO (Veículo recolhido)" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, XVIII", tema: "Pneu Careca", descricao: "Conduzir o veículo em mau estado de conservação.", autuar: "Banda de rodagem lisa com sulcos abaixo de 1.6mm (indicador TWI tocando o asfalto).", naoAutuar: "Desgaste apenas nas bordas, mantendo o centro e TWI íntegros.", medida: "Retenção para troca da roda/pneu.", rd: "SIM (Do CRLV, caso não consiga sanar no local)" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 162, I", tema: "Dirigir sem CNH", descricao: "Dirigir veículo sem possuir CNH, PPD ou ACC.", autuar: "Pesquisa via sistema atesta que cidadão não possui habilitação.", naoAutuar: "Condutor habilitado mas sem documento no momento (sistema comprova).", medida: "Retenção do veículo até condutor habilitado. Autuar tbm proprietário.", rd: "NÃO" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 162, V", tema: "CNH Vencida", descricao: "Dirigir com CNH vencida há mais de 30 dias.", autuar: "CNH passou da validade mais a tolerância de 30 dias.", naoAutuar: "CNH vencida há menos de 30 dias (dentro da tolerância legal).", medida: "Retenção do veículo e recolhimento do documento.", rd: "SIM (Da CNH)" },
-            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, VII", tema: "Característica Alterada", descricao: "Conduzir veículo com cor ou característica alterada.", autuar: "Suspensão rebaixada não legalizada, escape furado (moto) ou sem paralama.", naoAutuar: "Modificação devidamente constada no CSV do documento.", medida: "Retenção para regularização.", rd: "SIM (Do CRLV)" }
-        ];
-
-        const bancoInfracoesNormal = [
-            { artigo: "Art. 230, V", tema: "Licenciamento Atrasado", descricao: "Conduzir o veículo que não esteja registrado e devidamente licenciado.", autuar: "Consulta via sistema confirma CRLV do ano anterior (fora do calendário).", naoAutuar: "Motorista pagou a taxa há poucos dias e apresenta comprovante.", medida: "Remoção ao pátio.", rd: "NÃO" },
-            { artigo: "Art. 167", tema: "Cinto de Segurança", descricao: "Deixar o condutor ou passageiro de usar o cinto de segurança.", autuar: "Veículo em circulação sem cinto.", naoAutuar: "Veículo manobrando lentamente em posto.", medida: "Retenção do veículo até colocação.", rd: "NÃO" },
-            { artigo: "Art. 168", tema: "Transporte Irregular de Crianças", descricao: "Transportar crianças sem normas de segurança (cadeirinha).", autuar: "Criança menor de 10 anos ou < 1,45m sem dispositivo adequado.", naoAutuar: "Criança maior de 10 anos utilizando cinto normal.", medida: "Retenção até apresentação de cadeirinha ou transbordo.", rd: "NÃO" },
-            { artigo: "Art. 252, V / VI", tema: "Uso do Celular", descricao: "Dirigir segurando ou manuseando telefone celular.", autuar: "Manuseando ou segurando no ouvido.", naoAutuar: "Celular fixado no suporte como GPS.", medida: "Autuação gravíssima.", rd: "NÃO" },
-            { artigo: "Art. 230, XVIII", tema: "Pneu Careca", descricao: "Conduzir o veículo em mau estado de conservação.", autuar: "Banda de rodagem lisa (TWI no asfalto).", naoAutuar: "Desgaste apenas nas bordas.", medida: "Retenção para troca.", rd: "SIM, do CRLV (se não trocar no local)" }
-        ];
-
-        const bancoInfracoesMoto = [
-            { artigo: "Art. 244, I e II", tema: "Sem Capacete", descricao: "Conduzir ou transportar passageiro sem capacete.", autuar: "Capacete fora da cabeça ou sem estar afivelado.", naoAutuar: "Afivelado corretamente, mas com viseira levantada (outro artigo).", medida: "Retenção e recolhimento CNH.", rd: "SIM, da CNH" },
-            { artigo: "Art. 244, X", tema: "Viseira Levantada / Sem Óculos", descricao: "Conduzir com viseira levantada ou sem óculos.", autuar: "Veículo em movimento com viseira levantada.", naoAutuar: "Moto imobilizada no semáforo.", medida: "Retenção para baixar a viseira.", rd: "NÃO" },
-            { artigo: "Art. 230, XI", tema: "Escapamento Livre", descricao: "Descarga livre ou silenciador defeituoso.", autuar: "Escapamento esportivo sem abafador ou furado.", naoAutuar: "Escapamento paralelo com abafador íntegro.", medida: "Retenção para regularização.", rd: "SIM, do CRLV" },
-            { artigo: "Art. 244, III", tema: "Malabarismo (Grau)", descricao: "Conduzir fazendo malabarismo.", autuar: "Empinando a moto intencionalmente.", naoAutuar: "Arrancada brusca que levanta levemente a frente (Art. 175).", medida: "Retenção e recolhimento CNH.", rd: "SIM, da CNH" },
-            { artigo: "Art. 230, VI", tema: "Placa Ilegível / Escondida", descricao: "Conduzir com placa sem legibilidade.", autuar: "Placa dobrada ou eliminador de rabeta escondendo os números.", naoAutuar: "Levemente suja de poeira da viagem.", medida: "Retenção/Remoção.", rd: "SIM, do CRLV" }
-        ];
-
-        const bancoInfracoesCaminhao = [
-            { artigo: "Art. 230, IX", tema: "Lona Recolhida / Fitas Refletivas", descricao: "Conduzir com equipamento obrigatório ineficiente ou inoperante.", autuar: "Caminhão com lona enrolada não cobrindo a carga (quando exigido) ou faixas refletivas gastas/cobertas de barro.", naoAutuar: "Lona cobrindo adequadamente (mesmo com furos pequenos) e fitas sujas, mas ainda com boa refletividade.", medida: "Retenção para regularização (esticar lona/limpar fita).", rd: "SIM, do CRLV (Se não sanar no local)" },
-            { artigo: "Art. 231, V", tema: "Excesso de Peso", descricao: "Transitar com excesso de peso (PBT ou Eixo).", autuar: "Ticket da balança rodoviária apontou peso acima do limite legal somado à tolerância.", naoAutuar: "Excesso aferido dentro da margem de tolerância estabelecida.", medida: "Retenção e Transbordo.", rd: "NÃO (O veículo deve aguardar na balança até o transbordo)" },
-            { artigo: "Art. 231, II, 'c'", tema: "Derramamento de Carga", descricao: "Derramar, lançar ou arrastar carga na via.", autuar: "Pedaços de cana, terra, areia ou brita caindo continuamente na pista enquanto transita.", naoAutuar: "Veículo limpo, carga contida, vazando apenas água da chuva após temporal.", medida: "Autuação. Retenção para regularização se for abordado.", rd: "SIM, do CRLV (Se não sanar no local)" },
-            { artigo: "Art. 235", tema: "Carga Mal Acondicionada", descricao: "Carga sem dispositivos de contenção ou acima dos limites.", autuar: "Feixes de cana/madeira muito acima da altura lateral do reboque, sem redes ou cintas adequadas.", naoAutuar: "Carga alta, mas bem amarrada e dentro das dimensões legais de altura/largura.", medida: "Retenção para ajuste ou transbordo.", rd: "SIM, do CRLV" },
-            { artigo: "Art. 230, XIV e X", tema: "Tacógrafo (Cronotacógrafo)", descricao: "Aparelho viciado/defeituoso (XIV) ou em desacordo, como ausência de disco/laudo vencido (X).", autuar: "Aparelho quebrado, sem disco diagrama/fita, sem lacre, ou com certificado do Inmetro vencido.", naoAutuar: "Aparelho funcionando, laudo do Inmetro em dia e disco no prazo (apenas com pequenas rasuras).", medida: "Retenção para regularização.", rd: "SIM, do CRLV (Se o aparelho estiver quebrado ou sem laudo Inmetro)" },
-            { artigo: "Art. 230, XXI", tema: "Falta de Inscrição (Tara / PBT)", descricao: "Veículo de carga com falta de inscrição da tara e demais inscrições legais.", autuar: "Caminhão ou reboque sem as indicações de Tara, Lotação e PBT pintadas ou adesivadas na lateral.", naoAutuar: "Inscrição levemente apagada pelo tempo, mas ainda legível.", medida: "Autuação (Média). Retenção para regularização.", rd: "SIM, do CRLV" }
-        ];
-
-        const bancoInfracoesGeral = [
-            { artigo: "Art. 191", tema: "Forçar Passagem", descricao: "Forçar passagem entre veículos opostos.", autuar: "Tenta ultrapassar fazendo outros desviarem ou frearem.", naoAutuar: "Ultrapassagem normal segura.", medida: "Autuação (Gravíssima x10).", rd: "NÃO" }
-        ];
-
-        // --- FUNÇÕES DE NAVEGAÇÃO MBFT ---
-        function voltarCategoriasMbft() {
-            document.getElementById('mbft-categorias').classList.remove('hidden');
-            document.getElementById('mbft-conteudo').classList.add('hidden');
-        }
-
-        function abrirCategoriaMbft(categoria) {
-            abaAtivaMbft = categoria;
-            document.getElementById('mbft-categorias').classList.add('hidden');
-            document.getElementById('mbft-conteudo').classList.remove('hidden');
-            
-            const aviso = document.getElementById('mbft-aviso');
-            const tituloCat = document.getElementById('mbft-titulo-cat');
-            const buscaInput = document.getElementById('busca-infra');
-            
-            if (buscaInput) buscaInput.value = '';
-
-            if (categoria === 'top') {
-                tituloCat.innerHTML = "⭐ As 15+ Frequentes";
-                aviso.innerText = "As infrações mais recorrentes no policiamento rodoviário.";
-            } else if (categoria === 'norm') {
-                tituloCat.innerHTML = "🚗 Veículo de Passeio";
-                aviso.innerText = "Infrações comuns em fiscalização de carros.";
-            } else if (categoria === 'moto') {
-                tituloCat.innerHTML = "🏍️ Motocicleta";
-                aviso.innerText = "Infrações focadas no uso de motos e capacetes.";
-            } else if (categoria === 'cam') {
-                tituloCat.innerHTML = "🚛 Caminhão / Carga";
-                aviso.innerText = "Focado em dimensões, peso e conservação.";
-            } else if (categoria === 'pesq') {
-                tituloCat.innerHTML = "🔍 Pesquisa Livre";
-                aviso.innerText = "Buscando pelo artigo, tema ou descrição em toda a base.";
-            }
-            
-            renderizarInfracoes();
-        }
-
-        function renderizarInfracoes(termo) {
-            if (typeof termo === 'undefined') termo = '';
-            const div = document.getElementById('lista-infracoes');
-            if (!div) return; 
-            div.innerHTML = '';
-            
-            let listaBase = [];
-            if (abaAtivaMbft === 'top') {
-                listaBase = bancoInfracoesTop15;
-            } else if (abaAtivaMbft === 'norm') {
-                listaBase = bancoInfracoesNormal;
-            } else if (abaAtivaMbft === 'moto') {
-                listaBase = bancoInfracoesMoto;
-            } else if (abaAtivaMbft === 'cam') {
-                listaBase = bancoInfracoesCaminhao;
-            } else if (abaAtivaMbft === 'pesq') {
-                listaBase = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao, ...bancoInfracoesGeral];
-                listaBase = listaBase.filter((v,i,a) => a.findIndex(v2 => (v2.artigo === v.artigo)) === i);
-            }
-            
-            let listaFiltrada = listaBase;
-            if (termo !== '') {
-                const t = termo.toLowerCase();
-                listaFiltrada = listaBase.filter(i => 
-                    i.artigo.toLowerCase().includes(t) || 
-                    i.tema.toLowerCase().includes(t) ||
-                    i.descricao.toLowerCase().includes(t) ||
-                    i.autuar.toLowerCase().includes(t)
-                );
-            }
-            
-            if (listaFiltrada.length === 0) {
-                div.innerHTML = '<p style="text-align:center; color:red; margin-top:20px;">Nenhuma infração encontrada na busca.</p>';
-                return;
-            }
-
-            let categoriaAtual = "";
-
-            listaFiltrada.forEach(infra => {
-                if (abaAtivaMbft === 'top' && infra.categoria && infra.categoria !== categoriaAtual) {
-                    categoriaAtual = infra.categoria;
-                    div.innerHTML += `<div class="categoria-header">${categoriaAtual}</div>`;
-                }
-
-                div.innerHTML += `
-                    <div class="infra-card">
-                        <h4 class="infra-title">${infra.artigo} - ${infra.tema}</h4>
-                        <p class="infra-desc">${infra.descricao}</p>
-                        
-                        <div class="infra-box box-autuar">
-                            <strong>✅ QUANDO AUTUAR:</strong> ${infra.autuar}
-                        </div>
-                        <div class="infra-box box-nao-autuar">
-                            <strong>❌ QUANDO NÃO AUTUAR:</strong> ${infra.naoAutuar}
-                        </div>
-                        
-                        <div class="infra-medida">⚠️ Ação/Medida: ${infra.medida}</div>
-                        <div class="infra-rd">📄 Faz RD (Recolha)? <br> ${infra.rd}</div>
-                    </div>
-                `;
-            });
-        }
-
-        function filtrarInfracoes() {
-            const termo = document.getElementById('busca-infra').value;
-            renderizarInfracoes(termo);
-        }
-
-        // --- GPS E LOCALIZAÇÃO ---
         let meuMapa = null;
 
-        function buscarLocalReal() {
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            painelGeo.classList.remove('hidden');
-            painelGeo.innerHTML = "Buscando satélites... Aguarde (pode levar até 10 seg) 🛰️";
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sucessoGeo, erroGeo, { 
-                    enableHighAccuracy: true,
-                    timeout: 10000, 
-                    maximumAge: 0 
-                });
-            } else {
-                painelGeo.innerHTML = "❌ Seu navegador não suporta GPS.";
-            }
-        }
+        // Variaveis de Dados na Nuvem
+        let linksGlobais = [];
+        let vtrsGlobais = [];
+        let bosGlobais = [];
+        let dpsContatos = {};
+        let ccoContatos = {};
 
-        function sucessoGeo(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            const divMapa = document.getElementById('mapa');
-            painelGeo.innerHTML = "Lendo coordenadas e carregando mapa livre... 🌍";
-            divMapa.style.display = 'block';
+        // Referências Firebase
+        const dbLinks = ref(db, 'links');
+        const dbVtrs = ref(db, 'vtrs');
+        const dbBos = ref(db, 'bos');
+        const dbDps = ref(db, 'dps');
+        const dbCcos = ref(db, 'ccos');
 
-            if (meuMapa !== null) {
-                meuMapa.remove();
-            }
-            meuMapa = L.map('mapa').setView([lat, lng], 16);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(meuMapa);
-            L.marker([lat, lng]).addTo(meuMapa)
-                .bindPopup('Você está aqui!')
-                .openPopup();
+        // --- BANCOS DE DADOS PADRÃO (FALLBACK) ---
+        const linksPadrao = [
+            { nome: "CONSULTAR DEBITOS VEICULOS", url: "https://www.ipva.fazenda.sp.gov.br/IPVANET_Consulta/Consulta.aspx" },
+            { nome: "CONSULTAR DIVIDA ATIVA", url: "https://www.dividaativa.pge.sp.gov.br/sc/pages/consultas/consultarDebito.jsf" },
+            { nome: "PESQUISAR PROCURADO OU MP", url: "https://portalbnmp.cnj.jus.br/#/pesquisa-peca" },
+            { nome: "CONSULTAR CRONOTACOGRAFO", url: "https://cronotacografo.rbmlq.gov.br/certificados/consultar" },
+            { nome: "CONSULTAR AET CAMINHÃO", url: "https://app.der.sp.gov.br/atestadoseguro/fiscalizacao" },
+            { nome: "SIM DER (DERRUBAR TPD)", url: "https://www.simsgmder.der.sp.gov.br/simsgmder/" },
+            { nome: "PESQUISA DE IMEI CELULAR", url: "https://www.consultaaparelhoimpedido.com.br/public-web/home?cid=2829761" }
+        ];
 
-            const urlNominatim = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-            fetch(urlNominatim)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        painelGeo.innerHTML = `<strong>Você está em:</strong><br><br> <span style="color:#2a3f54; font-size:16px;">${data.display_name}</span>`;
-                        if(data.address && data.address.road) {
-                            painelGeo.innerHTML += `<br><br><em>Via principal identificada: <b style="color:#28a745;">${data.address.road}</b></em>`;
-                        }
-                    } else {
-                        painelGeo.innerHTML = "Endereço não encontrado na base aberta.";
-                    }
-                })
-                .catch(error => {
-                    painelGeo.innerHTML = "Erro ao conectar com o serviço de endereços (Possível bloqueio temporário ou sem internet).";
-                });
-        }
+        const vtrsPadrao = [
+            { nome: "R-03112", url: "https://docs.google.com/forms/d/e/1FAIpQLSf1onwl8DlrOOJxNHn9u8VYRMjG8aynrbZYhIH56gjBc6b-7g/viewform" },
+            { nome: "R-03114", url: "https://docs.google.com/forms/d/e/1FAIpQLScAUkGD5y66JYBbpym26C0jChRnB6HplJ6wOtQNoWsXWkXwEw/viewform" },
+            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" },
+            { nome: "R-03121", url: "https://docs.google.com/forms/d/e/1FAIpQLScfi9K0Zfug4LQ9nNZ6TcyPOYDUYXZywppOfz69XotTbeKtGA/viewform" },
+            { nome: "R-03122", url: "https://docs.google.com/forms/d/e/1FAIpQLScDyyktD5p4tGBBU12gNbroXOpfW8izn-2pVxOIcm3S71HUkg/viewform" },
+            { nome: "R-03127", url: "https://docs.google.com/forms/d/e/1FAIpQLSdTROlipmwP0S9BeWm0NYa17XtcQyJJmLscVvCmtMoyWwqkLw/viewform" },
+            { nome: "R-03115", url: "https://docs.google.com/forms/d/e/1FAIpQLSdBLeIg9dZ7VXZ154l5sKdyjxMA-uScMphH8moORFgenKx46w/viewform" }
+        ];
 
-        function erroGeo(err) {
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            painelGeo.classList.remove('hidden');
-            let motivo = err.message;
-            if (err.code === 1) motivo = "Você não deu permissão de localização no navegador.";
-            if (err.code === 2) motivo = "O navegador não conseguiu acessar a antena do seu GPS.";
-            if (err.code === 3) motivo = "Tempo esgotado! O sinal do GPS está muito fraco.";
-            painelGeo.innerHTML = `<strong>❌ Falha no GPS:</strong> ${motivo}<br><br><em>Dica: Abra direto no Google Chrome do celular e ligue a "Localização" do painel de cima.</em>`;
-        }
+        const boPadrao = [
+            { titulo: "Alcoolemia (Bafômetro Positivo)", texto: "Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro." },
+            { titulo: "Sinistro de Trânsito sem Vítima", texto: "Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L." },
+            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." },
+            { titulo: "Apreensão de Veículo (Licenciamento)", texto: "Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária." }
+        ];
 
-        // --- RODADAS E MALHA ---
+        const ccosIniciais = {
+            "DER 14": "17 997823152",
+            "DER 4": "16 997978447",
+            "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407",
+            "Econoroeste": "11 918499137",
+            "ECOVIAS": "11 918499137",
+            "ViaPaulista": "Não cadastrado",
+            "Intervias": "Não cadastrado",
+            "EIXOSP": "Não cadastrado",
+            "Prefeitura": "Não cadastrado"
+        };
+
         const malhaRodoviaria = [
             {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 131.5, "km_fim": 146.7, "municipio": "São Carlos", "nome_rodovia": "Doutor Paulo Lauro", "conservacao": "Intervias", "dp_responsavel": "Contato não fornecido na imagem"},
             {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 146.7, "km_fim": 171.25, "municipio": "São Carlos", "nome_rodovia": "Luiz Augusto de Oliveira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
@@ -801,147 +596,60 @@
             {"pelotao": "3", "tipo": "SPM", "numero": "326 E", "km_ini": 299.82, "km_fim": 300.4, "municipio": "Matão", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"}
         ];
 
-        // --- BANCO DE DADOS DE MODELOS DE BO ---
-        const boPadrao = [
-            { titulo: "Alcoolemia (Bafômetro Positivo)", texto: "Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro." },
-            { titulo: "Sinistro de Trânsito sem Vítima", texto: "Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L." },
-            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." },
-            { titulo: "Apreensão de Veículo (Licenciamento)", texto: "Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária." }
-        ];
-        
-        let dpsContatos = {};
-        let ccoContatos = {};
-        
-        const ccosIniciais = {
-            "DER 14": "17 997823152",
-            "DER 4": "16 997978447",
-            "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407",
-            "Econoroeste": "11 918499137",
-            "ECOVIAS": "11 918499137",
-            "ViaPaulista": "Não cadastrado",
-            "Intervias": "Não cadastrado",
-            "EIXOSP": "Não cadastrado",
-            "Prefeitura": "Não cadastrado"
-        };
+        // Escutadores em Tempo Real da Nuvem (Atualiza a tela na hora)
+        onValue(dbLinks, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { linksGlobais = data; } else { linksGlobais = linksPadrao; set(dbLinks, linksGlobais); }
+            renderizarListas();
+        });
 
-        function obterDadosSeguro(chave) {
-            try {
-                const dados = localStorage.getItem(chave);
-                if (dados) return JSON.parse(dados);
-            } catch (e) {
-                console.warn("Memória bloqueada.");
+        onValue(dbVtrs, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { vtrsGlobais = data; } else { vtrsGlobais = vtrsPadrao; set(dbVtrs, vtrsGlobais); }
+            renderizarListas();
+        });
+
+        onValue(dbBos, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { bosGlobais = data; } else { bosGlobais = boPadrao; set(dbBos, bosGlobais); }
+            renderizarListas();
+        });
+
+        onValue(dbDps, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { 
+                dpsContatos = data; 
+            } else { 
+                malhaRodoviaria.forEach(t => { if (!dpsContatos[t.municipio]) dpsContatos[t.municipio] = t.dp_responsavel; });
+                set(dbDps, dpsContatos);
             }
-            return null;
-        }
-
-        function salvarDadosSeguro(chave, dados) {
-            try {
-                localStorage.setItem(chave, JSON.stringify(dados));
-            } catch (e) {
-                console.warn("Memória bloqueada.");
-            }
-        }
-
-        function inicializarDados() {
-            const salvosDP = obterDadosSeguro('app_dps_contatos_v3');
-            if (salvosDP) {
-                dpsContatos = salvosDP;
-            } else {
-                malhaRodoviaria.forEach(t => {
-                    if (!dpsContatos[t.municipio]) {
-                        dpsContatos[t.municipio] = t.dp_responsavel;
-                    }
-                });
-                salvarDadosSeguro('app_dps_contatos_v3', dpsContatos);
-            }
-
-            const salvosCCO = obterDadosSeguro('app_cco_contatos_v3');
-            if (salvosCCO) {
-                ccoContatos = salvosCCO;
-            } else {
-                malhaRodoviaria.forEach(t => {
-                    if (!ccoContatos[t.conservacao]) {
-                        ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado";
-                    }
-                });
-                Object.keys(ccosIniciais).forEach(k => {
-                    if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k];
-                });
-                salvarDadosSeguro('app_cco_contatos_v3', ccoContatos);
-            }
-        }
-
-        const pelotaoSelect = document.getElementById('pelotao');
-        const rodoviaSelect = document.getElementById('rodovia');
-        const kmInput = document.getElementById('km');
-        const resultadoDiv = document.getElementById('resultado');
-
-        function populateSelect(selectElement, options, suffix = '') {
-            selectElement.innerHTML = '';
-            options.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt;
-                option.textContent = opt + suffix;
-                selectElement.appendChild(option);
-            });
-        }
-
-        function updateRodovias() {
-            const pelotao = pelotaoSelect.value;
-            const rodoviasDisponiveis = [...new Set(
-                malhaRodoviaria.filter(item => item.pelotao === pelotao).map(item => item.tipo + ' ' + item.numero)
-            )].sort();
-            populateSelect(rodoviaSelect, rodoviasDisponiveis);
+            if (isAdminLogado) renderizarEdicaoDPs();
             buscarDados();
-        }
+        });
 
-        function buscarDados() {
-            const pelotao = pelotaoSelect.value;
-            const rodoviaSelecionada = rodoviaSelect.value;
-            const kmVal = kmInput.value.replace(',', '.');
-            const km = parseFloat(kmVal);
-
-            if (isNaN(km) || kmVal.trim() === '') {
-                resultadoDiv.classList.add('hidden');
-                return;
+        onValue(dbCcos, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { 
+                ccoContatos = data; 
+            } else { 
+                malhaRodoviaria.forEach(t => { if (!ccoContatos[t.conservacao]) ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
+                Object.keys(ccosIniciais).forEach(k => { if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k]; });
+                set(dbCcos, ccoContatos);
             }
+            if (isAdminLogado) renderizarEdicaoCCOs();
+            buscarDados();
+        });
 
-            const trechos = malhaRodoviaria.filter(t => 
-                t.pelotao === pelotao && 
-                (t.tipo + ' ' + t.numero) === rodoviaSelecionada && 
-                km >= t.km_ini && 
-                km <= t.km_fim
-            );
+        // --- FUNÇÕES "WINDOW" PARA O HTML CONSEGUIR CHAMAR ---
+        window.showScreen = showScreen;
+        window.voltarCategoriasMbft = voltarCategoriasMbft;
+        window.abrirCategoriaMbft = abrirCategoriaMbft;
+        window.filtrarInfracoes = filtrarInfracoes;
+        window.buscarLocalReal = buscarLocalReal;
+        window.toggleBO = toggleBO;
+        window.copiarBO = copiarBO;
 
-            resultadoDiv.classList.remove('hidden');
-
-            if (trechos.length > 0) {
-                const trecho = trechos[0];
-                const dpTelefone = dpsContatos[trecho.municipio] || trecho.dp_responsavel;
-                const ccoTelefone = ccoContatos[trecho.conservacao] || "Não cadastrado";
-                
-                resultadoDiv.style.borderLeftColor = "#28a745";
-                resultadoDiv.innerHTML = `
-                    <div class="result-item"><span>🛣️ Rodovia:</span> ${trecho.nome_rodovia}</div>
-                    <div class="result-item"><span>📍 Município:</span> ${trecho.municipio}</div>
-                    <div class="result-item"><span>🚧 Conservação:</span> ${trecho.conservacao}</div>
-                    <div class="result-item" style="color:#0056b3;"><span>📞 CCO (${trecho.conservacao}):</span><br> ${ccoTelefone}</div>
-                    <hr style="border: 0.5px solid #ccc; margin: 15px 0;">
-                    <div class="result-item" style="color:#d9534f;"><span>🚔 DP Responsável (${trecho.municipio}):</span><br> ${dpTelefone}</div>
-                `;
-            } else {
-                resultadoDiv.style.borderLeftColor = "#d9534f";
-                resultadoDiv.innerHTML = `<strong>❌ Trecho não localizado.</strong><br>O KM ${km} não pertence à ${rodoviaSelecionada} neste Pelotão.`;
-            }
-        }
-
-        pelotaoSelect.addEventListener('change', updateRodovias);
-        rodoviaSelect.addEventListener('change', buscarDados);
-        kmInput.addEventListener('input', buscarDados);
-
-        let isAdminLogado = false;
-
-        function abrirAdmin(tipo) {
+        window.abrirAdmin = function(tipo) {
             if (!isAdminLogado) {
                 const senha = prompt("Digite a senha do Administrador:");
                 if (senha === "3BPRv") {
@@ -961,145 +669,84 @@
                 renderizarEdicaoCCOs();
             }
             renderizarListas();
-        }
+        };
 
-        function renderizarEdicaoCCOs() {
-            const div = document.getElementById('lista-editar-ccos');
-            div.innerHTML = '';
-            const conservacoes = Object.keys(ccoContatos).sort();
-            conservacoes.forEach((c, index) => {
-                div.innerHTML += `
-                    <div class="form-group" style="margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                        <label style="color:#0056b3;">📞 ${c}</label>
-                        <input type="text" id="cco_input_${index}" value="${ccoContatos[c]}" style="margin-bottom: 5px; font-size: 14px;">
-                        <button class="btn-add" style="padding: 5px; background: #007bff;" onclick="salvarCCO('${c}', ${index})">💾 Salvar CCO</button>
-                    </div>
-                `;
-            });
-        }
-
-        function salvarCCO(conservacao, index) {
+        window.salvarCCO = function(conservacao, index) {
             const novoTel = document.getElementById(`cco_input_${index}`).value;
             ccoContatos[conservacao] = novoTel;
-            salvarDadosSeguro('app_cco_contatos_v3', ccoContatos);
-            alert(`CCO de ${conservacao} atualizado com sucesso!`);
-            buscarDados();
-        }
+            set(dbCcos, ccoContatos);
+            alert(`CCO de ${conservacao} atualizado na nuvem!`);
+        };
 
-        function renderizarEdicaoDPs() {
-            const div = document.getElementById('lista-editar-dps');
-            div.innerHTML = '';
-            const municipios = Object.keys(dpsContatos).sort();
-            municipios.forEach((m, index) => {
-                div.innerHTML += `
-                    <div class="form-group" style="margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                        <label>🚔 ${m}</label>
-                        <input type="text" id="dp_input_${index}" value="${dpsContatos[m]}" style="margin-bottom: 5px; font-size: 14px;">
-                        <button class="btn-add" style="padding: 5px; background: #28a745;" onclick="salvarDP('${m}', ${index})">💾 Salvar DP</button>
-                    </div>
-                `;
-            });
-        }
-
-        function salvarDP(municipio, index) {
+        window.salvarDP = function(municipio, index) {
             const novoTel = document.getElementById(`dp_input_${index}`).value;
             dpsContatos[municipio] = novoTel;
-            salvarDadosSeguro('app_dps_contatos_v3', dpsContatos);
-            alert(`Telefone de ${municipio} atualizado com sucesso!`);
-            buscarDados();
-        }
+            set(dbDps, dpsContatos);
+            alert(`Telefone de ${municipio} atualizado na nuvem!`);
+        };
 
-        const linksPadrao = [
-            { nome: "CONSULTAR DEBITOS VEICULOS", url: "https://www.ipva.fazenda.sp.gov.br/IPVANET_Consulta/Consulta.aspx" },
-            { nome: "CONSULTAR DIVIDA ATIVA", url: "https://www.dividaativa.pge.sp.gov.br/sc/pages/consultas/consultarDebito.jsf" },
-            { nome: "PESQUISAR PROCURADO OU MP", url: "https://portalbnmp.cnj.jus.br/#/pesquisa-peca" },
-            { nome: "CONSULTAR CRONOTACOGRAFO", url: "https://cronotacografo.rbmlq.gov.br/certificados/consultar" },
-            { nome: "CONSULTAR AET CAMINHÃO", url: "https://app.der.sp.gov.br/atestadoseguro/fiscalizacao" },
-            { nome: "SIM DER (DERRUBAR TPD)", url: "https://www.simsgmder.der.sp.gov.br/simsgmder/" },
-            { nome: "PESQUISA DE IMEI CELULAR", url: "https://www.consultaaparelhoimpedido.com.br/public-web/home?cid=2829761" }
-        ];
-
-        const vtrsPadrao = [
-            { nome: "R-03112", url: "https://docs.google.com/forms/d/e/1FAIpQLSf1onwl8DlrOOJxNHn9u8VYRMjG8aynrbZYhIH56gjBc6b-7g/viewform" },
-            { nome: "R-03114", url: "https://docs.google.com/forms/d/e/1FAIpQLScAUkGD5y66JYBbpym26C0jChRnB6HplJ6wOtQNoWsXWkXwEw/viewform" },
-            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" },
-            { nome: "R-03121", url: "https://docs.google.com/forms/d/e/1FAIpQLScfi9K0Zfug4LQ9nNZ6TcyPOYDUYXZywppOfz69XotTbeKtGA/viewform" },
-            { nome: "R-03122", url: "https://docs.google.com/forms/d/e/1FAIpQLScDyyktD5p4tGBBU12gNbroXOpfW8izn-2pVxOIcm3S71HUkg/viewform" },
-            { nome: "R-03127", url: "https://docs.google.com/forms/d/e/1FAIpQLSdTROlipmwP0S9BeWm0NYa17XtcQyJJmLscVvCmtMoyWwqkLw/viewform" },
-            { nome: "R-03115", url: "https://docs.google.com/forms/d/e/1FAIpQLSdBLeIg9dZ7VXZ154l5sKdyjxMA-uScMphH8moORFgenKx46w/viewform" }
-        ];
-
-        function obterListaLocal(chave, padrao) {
-            const salvos = obterDadosSeguro(chave);
-            if (salvos) return salvos;
-            salvarDadosSeguro(chave, padrao);
-            return padrao;
-        }
-
-        function adicionarItem(tipo) {
+        window.adicionarItem = function(tipo) {
             if (tipo === 'links') {
                 const nome = document.getElementById('link-nome').value.trim();
                 const url = document.getElementById('link-url').value.trim();
                 if (!nome || !url) return alert("Preencha o nome e o link!");
-                let links = obterListaLocal('app_links_uteis_v3', linksPadrao);
-                links.push({ nome, url });
-                salvarDadosSeguro('app_links_uteis_v3', links);
+                linksGlobais.push({ nome, url });
+                set(dbLinks, linksGlobais);
                 document.getElementById('link-nome').value = '';
                 document.getElementById('link-url').value = '';
             } else if (tipo === 'vtr') {
                 const nome = document.getElementById('vtr-nome').value.trim();
                 const url = document.getElementById('vtr-url').value.trim();
                 if (!nome || !url) return alert("Preencha a VTR e o link!");
-                let vtrs = obterListaLocal('app_links_vtr_v3', vtrsPadrao);
-                vtrs.push({ nome, url });
-                salvarDadosSeguro('app_links_vtr_v3', vtrs);
+                vtrsGlobais.push({ nome, url });
+                set(dbVtrs, vtrsGlobais);
                 document.getElementById('vtr-nome').value = '';
                 document.getElementById('vtr-url').value = '';
             } else if (tipo === 'bo') {
                 const titulo = document.getElementById('bo-titulo').value.trim();
                 const texto = document.getElementById('bo-texto-add').value.trim();
                 if (!titulo || !texto) return alert("Preencha o título e o texto do modelo de BO!");
-                let bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
-                bos.push({ titulo, texto });
-                salvarDadosSeguro('app_bo_modelos_v1', bos);
+                bosGlobais.push({ titulo, texto });
+                set(dbBos, bosGlobais);
                 document.getElementById('bo-titulo').value = '';
                 document.getElementById('bo-texto-add').value = '';
             }
-            renderizarListas();
-        }
+        };
 
-        function excluirItem(tipo, index) {
-            if (confirm("Tem certeza que deseja excluir este item?")) {
+        window.excluirItem = function(tipo, index) {
+            if (confirm("Tem certeza que deseja excluir este item para todo o pelotão?")) {
                 if(tipo === 'links') {
-                    let dados = obterListaLocal('app_links_uteis_v3', linksPadrao);
-                    dados.splice(index, 1);
-                    salvarDadosSeguro('app_links_uteis_v3', dados);
+                    linksGlobais.splice(index, 1);
+                    set(dbLinks, linksGlobais);
                 } else if (tipo === 'vtr') {
-                    let dados = obterListaLocal('app_links_vtr_v3', vtrsPadrao);
-                    dados.splice(index, 1);
-                    salvarDadosSeguro('app_links_vtr_v3', dados);
+                    vtrsGlobais.splice(index, 1);
+                    set(dbVtrs, vtrsGlobais);
                 } else if (tipo === 'bo') {
-                    let dados = obterListaLocal('app_bo_modelos_v1', boPadrao);
-                    dados.splice(index, 1);
-                    salvarDadosSeguro('app_bo_modelos_v1', dados);
+                    bosGlobais.splice(index, 1);
+                    set(dbBos, bosGlobais);
                 }
-                renderizarListas();
             }
-        }
+        };
+
+        window.salvarEdicaoBO = function(index) {
+            const novoTexto = document.getElementById('texto-bo-' + index).value;
+            bosGlobais[index].texto = novoTexto;
+            set(dbBos, bosGlobais);
+            alert("💾 Alteração salva na nuvem com sucesso!");
+        };
 
         function renderizarListas() {
             // Links
             const divLinks = document.getElementById('lista-links');
-            const links = obterListaLocal('app_links_uteis_v3', linksPadrao);
             if (divLinks) {
                 divLinks.innerHTML = '';
-                if (links.length === 0) divLinks.innerHTML = '<p style="text-align:center; color:#666;">Nenhum link cadastrado.</p>';
-                links.forEach((item, index) => {
+                if (linksGlobais.length === 0) divLinks.innerHTML = '<p style="text-align:center; color:#666;">Nenhum link cadastrado.</p>';
+                linksGlobais.forEach((item, index) => {
                     divLinks.innerHTML += `
                         <div class="list-item">
                             <span>${item.nome}</span>
                             <a href="${item.url}" target="_blank">${item.url}</a>
-                            ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('links', ${index})">🗑️ Excluir</span>` : ''}
+                            ${isAdminLogado ? `<span class="delete-btn" onclick="window.excluirItem('links', ${index})">🗑️ Excluir da Nuvem</span>` : ''}
                         </div>
                     `;
                 });
@@ -1107,16 +754,15 @@
             
             // VTRs
             const divVtr = document.getElementById('lista-vtr');
-            const vtrs = obterListaLocal('app_links_vtr_v3', vtrsPadrao);
             if (divVtr) {
                 divVtr.innerHTML = '';
-                if (vtrs.length === 0) divVtr.innerHTML = '<p style="text-align:center; color:#666;">Nenhuma VTR cadastrada.</p>';
-                vtrs.forEach((item, index) => {
+                if (vtrsGlobais.length === 0) divVtr.innerHTML = '<p style="text-align:center; color:#666;">Nenhuma VTR cadastrada.</p>';
+                vtrsGlobais.forEach((item, index) => {
                     divVtr.innerHTML += `
                         <div class="list-item">
                             <span>${item.nome}</span>
                             <a href="${item.url}" target="_blank">${item.url}</a>
-                            ${isAdminLogado ? `<span class="delete-btn" onclick="excluirItem('vtr', ${index})">🗑️ Excluir</span>` : ''}
+                            ${isAdminLogado ? `<span class="delete-btn" onclick="window.excluirItem('vtr', ${index})">🗑️ Excluir da Nuvem</span>` : ''}
                         </div>
                     `;
                 });
@@ -1124,26 +770,25 @@
 
             // BOs
             const divBo = document.getElementById('lista-bo');
-            const bos = obterListaLocal('app_bo_modelos_v1', boPadrao);
             if (divBo) {
                 divBo.innerHTML = '';
-                if (bos.length === 0) divBo.innerHTML = '<p style="text-align:center; color:#666;">Nenhum modelo de BO cadastrado.</p>';
-                bos.forEach((item, index) => {
+                if (bosGlobais.length === 0) divBo.innerHTML = '<p style="text-align:center; color:#666;">Nenhum modelo de BO cadastrado.</p>';
+                bosGlobais.forEach((item, index) => {
                     divBo.innerHTML += `
                         <div class="bo-card">
                             <div class="bo-header">
                                 <strong>${item.titulo}</strong>
                                 <div class="bo-header-btns">
-                                    <button id="btn-visu-${index}" class="btn-visualizar" onclick="toggleBO(${index})">👁️ Ver</button>
-                                    <button class="btn-copiar" onclick="copiarBO(${index})">📋 Copiar</button>
+                                    <button id="btn-visu-${index}" class="btn-visualizar" onclick="window.toggleBO(${index})">👁️ Ver</button>
+                                    <button class="btn-copiar" onclick="window.copiarBO(${index})">📋 Copiar</button>
                                 </div>
                             </div>
                             <div id="bo-conteudo-${index}" style="display: none;">
                                 <textarea id="texto-bo-${index}" class="bo-texto" ${isAdminLogado ? '' : 'readonly'}>${item.texto}</textarea>
                                 ${isAdminLogado ? `
                                     <div class="bo-admin-actions">
-                                        <button class="btn-bo-edit" onclick="salvarEdicaoBO(${index})">💾 Salvar Edição fixa</button>
-                                        <button class="btn-bo-del" onclick="excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
+                                        <button class="btn-bo-edit" onclick="window.salvarEdicaoBO(${index})">💾 Salvar Edição Fixa</button>
+                                        <button class="btn-bo-del" onclick="window.excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1155,11 +800,9 @@
 
         window.onload = function() {
             try {
-                inicializarDados();
                 const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
                 populateSelect(pelotaoSelect, pelotoes, 'º Pelotão');
                 updateRodovias();
-                renderizarListas();
             } catch(err) {
                 console.error("Erro na inicialização: " + err);
             }
