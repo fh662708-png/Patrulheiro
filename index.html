@@ -70,11 +70,15 @@
         /* Estilos Exemplos de BO */
         .bo-card { background: #fff; border: 1px solid #ddd; border-left: 5px solid #8e44ad; border-radius: 8px; margin-bottom: 15px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .bo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .bo-header strong { color: #2a3f54; font-size: 15px; width: 70%; }
-        .btn-copiar { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .bo-header strong { color: #2a3f54; font-size: 15px; flex: 1; margin-right: 10px; line-height: 1.2; }
+        .bo-header-btns { display: flex; gap: 5px; }
+        .btn-visualizar { background: #17a2b8; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-visualizar:active { background: #138496; transform: scale(0.95); }
+        .btn-copiar { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-copiar:active { background: #0056b3; transform: scale(0.95); }
-        .bo-texto { width: 100%; height: 130px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4;}
-        .bo-texto[readonly] { background-color: #f4f4f4; color: #555; } /* Destaca que está bloqueado para o patrulheiro */
+        
+        .bo-texto { width: 100%; height: 130px; font-size: 14px; color: #444; border: 1px solid #ccc; border-radius: 6px; padding: 10px; box-sizing: border-box; resize: vertical; background: #fdfdfd; font-family: Arial, sans-serif; line-height: 1.4; margin-top: 10px;}
+        .bo-texto[readonly] { background-color: #f4f4f4; color: #555; }
         .bo-admin-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
         .btn-bo-edit { background: #ffc107; color: #333; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
         .btn-bo-del { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold;}
@@ -307,9 +311,30 @@
             }
         }
 
-        // --- FUNÇÃO PARA COPIAR TEXTO DO BO ---
-        function copiarBO(idTexto) {
-            const areaTexto = document.getElementById(idTexto);
+        // --- FUNÇÕES DOS EXEMPLOS DE BO ---
+        function toggleBO(index) {
+            const conteudo = document.getElementById('bo-conteudo-' + index);
+            const btn = document.getElementById('btn-visu-' + index);
+            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
+                conteudo.style.display = 'block';
+                btn.innerHTML = '➖ Ocultar';
+                btn.style.background = '#6c757d';
+            } else {
+                conteudo.style.display = 'none';
+                btn.innerHTML = '👁️ Ver';
+                btn.style.background = '#17a2b8';
+            }
+        }
+
+        function copiarBO(index) {
+            const areaTexto = document.getElementById('texto-bo-' + index);
+            const conteudo = document.getElementById('bo-conteudo-' + index);
+            
+            // Abre a caixa de texto se estiver oculta para poder selecionar
+            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
+                toggleBO(index);
+            }
+            
             areaTexto.select();
             areaTexto.setSelectionRange(0, 99999);
             
@@ -1108,15 +1133,20 @@
                         <div class="bo-card">
                             <div class="bo-header">
                                 <strong>${item.titulo}</strong>
-                                <button class="btn-copiar" onclick="copiarBO('texto-bo-${index}')">📋 Copiar</button>
-                            </div>
-                            <textarea id="texto-bo-${index}" class="bo-texto" ${isAdminLogado ? '' : 'readonly'}>${item.texto}</textarea>
-                            ${isAdminLogado ? `
-                                <div class="bo-admin-actions">
-                                    <button class="btn-bo-edit" onclick="salvarEdicaoBO(${index})">💾 Salvar Edição</button>
-                                    <button class="btn-bo-del" onclick="excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
+                                <div class="bo-header-btns">
+                                    <button id="btn-visu-${index}" class="btn-visualizar" onclick="toggleBO(${index})">👁️ Ver</button>
+                                    <button class="btn-copiar" onclick="copiarBO(${index})">📋 Copiar</button>
                                 </div>
-                            ` : ''}
+                            </div>
+                            <div id="bo-conteudo-${index}" style="display: none;">
+                                <textarea id="texto-bo-${index}" class="bo-texto" ${isAdminLogado ? '' : 'readonly'}>${item.texto}</textarea>
+                                ${isAdminLogado ? `
+                                    <div class="bo-admin-actions">
+                                        <button class="btn-bo-edit" onclick="salvarEdicaoBO(${index})">💾 Salvar Edição fixa</button>
+                                        <button class="btn-bo-del" onclick="excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 });
