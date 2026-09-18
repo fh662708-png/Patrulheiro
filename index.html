@@ -88,12 +88,6 @@
     </style>
 </head>
 <body>
-    <script>
-        window.onerror = function(msg, url, line) {
-            alert("❌ Erro no código! O celular cortou algo na linha " + line + ". Mensagem: " + msg);
-        };
-    </script>
-
     <div class="container">
         <div class="header">
             <button id="btn-voltar" class="btn-voltar-header" onclick="window.showScreen('home')">⬅️</button>
@@ -156,15 +150,15 @@
 
             <div class="form-group">
                 <label>1. Selecione o Pelotão:</label>
-                <select id="pelotao"></select>
+                <select id="pelotao" onchange="window.updateRodovias()"></select>
             </div>
             <div class="form-group">
                 <label>2. Selecione a Rodovia:</label>
-                <select id="rodovia"></select>
+                <select id="rodovia" onchange="window.buscarDados()"></select>
             </div>
             <div class="form-group">
                 <label>3. Digite o KM (ex: 140.5):</label>
-                <input type="number" id="km" step="0.01" placeholder="Digite o KM..." inputmode="decimal">
+                <input type="number" id="km" step="0.01" placeholder="Digite o KM..." inputmode="decimal" oninput="window.buscarDados()">
             </div>
             <div id="resultado" class="result-card hidden"></div>
         </div>
@@ -288,12 +282,11 @@
         </div>
     </div>
 
-    <!-- SCRIPT TIPO MODULE COM FIREBASE V10 -->
+    <!-- SCRIPT TIPO MODULE COM FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAcyjWfccO9bpWodTq7J0j3llzTyQpl44Y",
             authDomain: "patrulheiro-1c499.firebaseapp.com",
@@ -307,7 +300,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- VARIÁVEIS GLOBAIS E ESTADOS ---
         let isAdminLogado = false;
         let abaAtivaMbft = '';
         let meuMapa = null;
@@ -318,14 +310,13 @@
         let dpsContatos = {};
         let ccoContatos = {};
 
-        // Referências Firebase
         const dbLinks = ref(db, 'links');
         const dbVtrs = ref(db, 'vtrs');
         const dbBos = ref(db, 'bos');
         const dbDps = ref(db, 'dps');
         const dbCcos = ref(db, 'ccos');
 
-        // --- BANCOS DE DADOS PADRÃO (FALLBACK) ---
+        // BANCOS DE DADOS PADRÃO (FALLBACK)
         const linksPadrao = [
             { nome: "CONSULTAR DEBITOS VEICULOS", url: "https://www.ipva.fazenda.sp.gov.br/IPVANET_Consulta/Consulta.aspx" },
             { nome: "CONSULTAR DIVIDA ATIVA", url: "https://www.dividaativa.pge.sp.gov.br/sc/pages/consultas/consultarDebito.jsf" },
@@ -339,275 +330,47 @@
         const vtrsPadrao = [
             { nome: "R-03112", url: "https://docs.google.com/forms/d/e/1FAIpQLSf1onwl8DlrOOJxNHn9u8VYRMjG8aynrbZYhIH56gjBc6b-7g/viewform" },
             { nome: "R-03114", url: "https://docs.google.com/forms/d/e/1FAIpQLScAUkGD5y66JYBbpym26C0jChRnB6HplJ6wOtQNoWsXWkXwEw/viewform" },
-            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" },
-            { nome: "R-03121", url: "https://docs.google.com/forms/d/e/1FAIpQLScfi9K0Zfug4LQ9nNZ6TcyPOYDUYXZywppOfz69XotTbeKtGA/viewform" },
-            { nome: "R-03122", url: "https://docs.google.com/forms/d/e/1FAIpQLScDyyktD5p4tGBBU12gNbroXOpfW8izn-2pVxOIcm3S71HUkg/viewform" },
-            { nome: "R-03127", url: "https://docs.google.com/forms/d/e/1FAIpQLSdTROlipmwP0S9BeWm0NYa17XtcQyJJmLscVvCmtMoyWwqkLw/viewform" },
-            { nome: "R-03115", url: "https://docs.google.com/forms/d/e/1FAIpQLSdBLeIg9dZ7VXZ154l5sKdyjxMA-uScMphH8moORFgenKx46w/viewform" }
+            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" }
         ];
 
         const boPadrao = [
             { titulo: "Alcoolemia (Bafômetro Positivo)", texto: "Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro." },
             { titulo: "Sinistro de Trânsito sem Vítima", texto: "Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L." },
-            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." },
-            { titulo: "Apreensão de Veículo (Licenciamento)", texto: "Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária." }
+            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." }
         ];
 
-        const ccosIniciais = {
-            "DER 14": "17 997823152",
-            "DER 4": "16 997978447",
-            "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407",
-            "Econoroeste": "11 918499137",
-            "ECOVIAS": "11 918499137",
-            "ViaPaulista": "Não cadastrado",
-            "Intervias": "Não cadastrado",
-            "EIXOSP": "Não cadastrado",
-            "Prefeitura": "Não cadastrado"
-        };
+        const ccosIniciais = { "DER 14": "17 997823152", "DER 4": "16 997978447", "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407", "Econoroeste": "11 918499137" };
 
         const malhaRodoviaria = [
-            {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 131.5, "km_fim": 146.7, "municipio": "São Carlos", "nome_rodovia": "Doutor Paulo Lauro", "conservacao": "Intervias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 146.7, "km_fim": 171.25, "municipio": "São Carlos", "nome_rodovia": "Luiz Augusto de Oliveira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 171.25, "km_fim": 188.6, "municipio": "Ribeirão Bonito", "nome_rodovia": "Luiz Augusto de Oliveira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 188.6, "km_fim": 209.9, "municipio": "Dourado", "nome_rodovia": "Luiz Augusto de Oliveira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 47.6, "km_fim": 48.35, "municipio": "Rincão", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 53.5, "km_fim": 61.1, "municipio": "Santa Lúcia", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 61.1, "km_fim": 71.0, "municipio": "Américo Brasiliense", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 71.0, "km_fim": 77.1, "municipio": "Araraquara", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 77.1, "km_fim": 78.11, "municipio": "Araraquara", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 78.11, "km_fim": 83.2, "municipio": "Araraquara", "nome_rodovia": "Antônio Machado Sant´ana", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 83.2, "km_fim": 95.16, "municipio": "Araraquara", "nome_rodovia": "Comandante João Ribeiro de Barros", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 95.16, "km_fim": 122.22, "municipio": "Boa Esperança do Sul", "nome_rodovia": "Comandante João Ribeiro de Barros", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "255", "km_ini": 122.22, "km_fim": 124.02, "municipio": "Dourado", "nome_rodovia": "Comandante João Ribeiro de Barros", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "257", "km_ini": 0.0, "km_fim": 4.57, "municipio": "Américo Brasiliense", "nome_rodovia": "Antonio Barbieri", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "257", "km_ini": 4.57, "km_fim": 6.92, "municipio": "Américo Brasiliense", "nome_rodovia": "Deputado Aldo Lupo", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "257", "km_ini": 6.92, "km_fim": 16.1, "municipio": "Santa Lúcia", "nome_rodovia": "Deputado Aldo Lupo", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "257", "km_ini": 16.1, "km_fim": 19.5, "municipio": "Rincão", "nome_rodovia": "Deputado Aldo Lupo", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "310", "km_ini": 217.0, "km_fim": 227.8, "municipio": "São Carlos", "nome_rodovia": "Washington Luís", "conservacao": "EIXOSP", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "310", "km_ini": 227.8, "km_fim": 241.8, "municipio": "São Carlos", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "310", "km_ini": 241.8, "km_fim": 254.3, "municipio": "Ibaté", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "310", "km_ini": 254.3, "km_fim": 291.6, "municipio": "Araraquara", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "310", "km_ini": 291.6, "km_fim": 320.4, "municipio": "Matão", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 235.4, "km_fim": 241.0, "municipio": "São Carlos", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 241.0, "km_fim": 243.0, "municipio": "São Carlos", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 243.0, "km_fim": 267.4, "municipio": "São Carlos", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 267.4, "km_fim": 270.5, "municipio": "Américo Brasiliense", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 270.5, "km_fim": 271.6, "municipio": "Santa Lúcia", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "318", "km_ini": 271.6, "km_fim": 280.0, "municipio": "Rincão", "nome_rodovia": "Eng. Thales de Lorena Peixoto Júnior", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "331", "km_ini": 0.0, "km_fim": 4.764, "municipio": "Araraquara", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "331", "km_ini": 4.764, "km_fim": 14.5, "municipio": "Gavião Peixoto", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "331", "km_ini": 14.5, "km_fim": 15.54, "municipio": "Araraquara", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SP", "numero": "331", "km_ini": 15.54, "km_fim": 29.2, "municipio": "Nova Europa", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "004/257", "km_ini": 0.0, "km_fim": 2.8, "municipio": "Américo Brasiliense", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "004/257", "km_ini": 2.8, "km_fim": 4.5, "municipio": "Araraquara", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "027/331", "km_ini": 0.0, "km_fim": 3.0, "municipio": "Nova Europa", "nome_rodovia": "Vereador Ovídio Bergamin", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "051/255", "km_ini": 0.0, "km_fim": 12.16, "municipio": "Rincão", "nome_rodovia": "Jornalista Paulo de Arruda Corrêa da Silva", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "074/255", "km_ini": 0.0, "km_fim": 3.643, "municipio": "Araraquara", "nome_rodovia": "José Barbante Netto", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "074/255", "km_ini": 3.643, "km_fim": 4.4, "municipio": "Araraquara", "nome_rodovia": "José Barbante Netto", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "077/255", "km_ini": 0.0, "km_fim": 2.2, "municipio": "Araraquara", "nome_rodovia": "Abdo Najm", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "085/255", "km_ini": 0.0, "km_fim": 0.942, "municipio": "Araraquara", "nome_rodovia": "Rubens José Bombardi", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "106/255", "km_ini": 0.0, "km_fim": 7.13, "municipio": "Boa Esperança do Sul", "nome_rodovia": "Cottar Tannuri", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "112/255", "km_ini": 0.0, "km_fim": 1.05, "municipio": "Boa Esperança do Sul", "nome_rodovia": "Carlos Eduardo Rosin", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "114/255", "km_ini": 0.0, "km_fim": 1.0, "municipio": "Boa Esperança do Sul", "nome_rodovia": "Engenheiro José Luiz Beraldo", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "115/255", "km_ini": 0.0, "km_fim": 2.1, "municipio": "Boa Esperança do Sul", "nome_rodovia": "João Schimidt", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "115/255", "km_ini": 2.1, "km_fim": 7.0, "municipio": "Trabiju", "nome_rodovia": "João Schimidt", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "136/215", "km_ini": 0.0, "km_fim": 1.1, "municipio": "São Carlos", "nome_rodovia": "Leoncio Zambel", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "147/215", "km_ini": 0.0, "km_fim": 2.4, "municipio": "São Carlos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "147/215", "km_ini": 2.4, "km_fim": 2.65, "municipio": "São Carlos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "149/215", "km_ini": 0.0, "km_fim": 1.0, "municipio": "São Carlos", "nome_rodovia": "Domingos Innocentini", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "149/215", "km_ini": 1.0, "km_fim": 10.35, "municipio": "São Carlos", "nome_rodovia": "Domingos Innocentini", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "181/215", "km_ini": 0.0, "km_fim": 0.54, "municipio": "Ribeirão Bonito", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "181/215", "km_ini": 0.54, "km_fim": 1.25, "municipio": "Ribeirão Bonito", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "181/215", "km_ini": 1.25, "km_fim": 1.9, "municipio": "Ribeirão Bonito", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "196/215", "km_ini": 0.0, "km_fim": 1.2, "municipio": "Dourado", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "268/310", "km_ini": 0.0, "km_fim": 2.85, "municipio": "Araraquara", "nome_rodovia": "Engenheiro Ivo Najm", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "271/310", "km_ini": 0.0, "km_fim": 0.58, "municipio": "Araraquara", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "276/310", "km_ini": 0.0, "km_fim": 0.45, "municipio": "Araraquara", "nome_rodovia": "Engenheiro Heitor de Souza Pinheiro", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPA", "numero": "301/310", "km_ini": 0.0, "km_fim": 3.2, "municipio": "Matão", "nome_rodovia": "Carl Fischer", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPI", "numero": "274/310", "km_ini": 0.0, "km_fim": 2.0, "municipio": "Araraquara", "nome_rodovia": "Vereador Elias Damus", "conservacao": "ViaPaulista", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPM", "numero": "310 D", "km_ini": 276.5, "km_fim": 280.0, "municipio": "Araraquara", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPM", "numero": "310 E", "km_ini": 235.0, "km_fim": 235.5, "municipio": "São Carlos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "1", "tipo": "SPM", "numero": "310 E", "km_ini": 276.5, "km_fim": 280.0, "municipio": "Araraquara", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 355.68, "km_fim": 381.22, "municipio": "Pitangueiras", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 381.22, "km_fim": 390.5, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 390.5, "km_fim": 391.425, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 391.425, "km_fim": 395.65, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 395.65, "km_fim": 396.24, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 396.24, "km_fim": 397.38, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 397.38, "km_fim": 398.5, "municipio": "Bebedouro", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 406.77, "km_fim": 423.96, "municipio": "Monte Azul Paulista", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 423.96, "km_fim": 426.25, "municipio": "Cajobi", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 426.25, "km_fim": 435.45, "municipio": "Severínia", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3817 1222"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 435.45, "km_fim": 461.43, "municipio": "Olímpia", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 461.43, "km_fim": 468.69, "municipio": "Guaraci", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3815 1286"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 468.69, "km_fim": 480.76, "municipio": "Altair", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Escrivão Julio Cesar 9724-6808 / (17) 3889 1192"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 480.76, "km_fim": 481.7, "municipio": "Guaraci", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3815 1286"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 481.7, "km_fim": 517.82, "municipio": "Icém", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "Escrivão Reis / (17) 3282-2525 / 99706-6104"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 517.82, "km_fim": 527.2, "municipio": "Orindiúva", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3816-1224"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 527.2, "km_fim": 539.64, "municipio": "Paulo de Faria", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "DER 14", "dp_responsavel": "(17) 3292-1313"},
-            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 539.64, "km_fim": 556.4, "municipio": "Paulo de Faria", "nome_rodovia": "Waldemar Lopez Ferraz", "conservacao": "DER 14", "dp_responsavel": "(17) 3292-1313"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 362.9, "km_fim": 365.81, "municipio": "Taquaral", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 365.81, "km_fim": 368.17, "municipio": "Pitangueiras", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 368.17, "km_fim": 376.23, "municipio": "Taquaral", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 376.23, "km_fim": 379.266, "municipio": "Bebedouro", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 379.266, "km_fim": 395.09, "municipio": "Bebedouro", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 395.09, "km_fim": 411.95, "municipio": "Colina", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "(17) 3341 1867 / 3341 1254"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 411.95, "km_fim": 426.3, "municipio": "Barretos", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 426.3, "km_fim": 432.24, "municipio": "Barretos", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "DER 14", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 432.24, "km_fim": 449.15, "municipio": "Barretos", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "DER 14", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "326", "km_ini": 449.15, "km_fim": 468.3, "municipio": "Colômbia", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "DER 14", "dp_responsavel": "(17) 3335 1003"},
-            {"pelotao": "2", "tipo": "SP", "numero": "345", "km_ini": 122.67, "km_fim": 148.02, "municipio": "Guaíra", "nome_rodovia": "Prefeito Fábio Talarico", "conservacao": "DER 14", "dp_responsavel": "(17) 3331 2360 (1º DP)"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 127.33, "km_fim": 128.7, "municipio": "Viradouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "DER 14", "dp_responsavel": "(17) 3392 3839"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 128.7, "km_fim": 143.29, "municipio": "Viradouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Entrevias", "dp_responsavel": "(17) 3392 3839"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 143.29, "km_fim": 150.5, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 150.5, "km_fim": 151.0, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 151.0, "km_fim": 156.09, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 156.09, "km_fim": 157.3, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 157.3, "km_fim": 157.84, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 157.84, "km_fim": 163.66, "municipio": "Bebedouro", "nome_rodovia": "Laureanous Brogna", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 163.66, "km_fim": 185.92, "municipio": "Pirangi", "nome_rodovia": "Comendador Pedro Monteleone", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "351", "km_ini": 185.92, "km_fim": 193.25, "municipio": "Paraíso", "nome_rodovia": "Comendador Pedro Monteleone", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "353", "km_ini": 0.0, "km_fim": 6.26, "municipio": "Bebedouro", "nome_rodovia": "Doutor Oswaldo Prudente Corrêa", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SP", "numero": "353", "km_ini": 6.26, "km_fim": 15.514, "municipio": "Terra Roxa", "nome_rodovia": "Doutor Oswaldo Prudente Corrêa", "conservacao": "DER 14", "dp_responsavel": "(17) 3395-1166"},
-            {"pelotao": "2", "tipo": "SP", "numero": "353", "km_ini": 15.514, "km_fim": 16.37, "municipio": "Terra Roxa", "nome_rodovia": "Doutor Oswaldo Prudente Corrêa", "conservacao": "Prefeitura", "dp_responsavel": "(17) 3395-1166"},
-            {"pelotao": "2", "tipo": "SP", "numero": "373", "km_ini": 135.72, "km_fim": 148.54, "municipio": "Jaborandi", "nome_rodovia": "Dona Genoveva Lima de Carvalho Dias", "conservacao": "DER 14", "dp_responsavel": "Escrivã Dulce (17) 9 9131-5032 / (17) 3347 1134"},
-            {"pelotao": "2", "tipo": "SP", "numero": "373", "km_ini": 148.54, "km_fim": 152.74, "municipio": "Colina", "nome_rodovia": "Antônio Bruno", "conservacao": "DER 14", "dp_responsavel": "(17) 3341 1867 / 3341 1254"},
-            {"pelotao": "2", "tipo": "SP", "numero": "373", "km_ini": 152.74, "km_fim": 157.84, "municipio": "Colina", "nome_rodovia": "Antônio Bruno", "conservacao": "DER 14", "dp_responsavel": "(17) 3341 1867 / 3341 1254"},
-            {"pelotao": "2", "tipo": "SP", "numero": "373", "km_ini": 157.84, "km_fim": 180.34, "municipio": "Colina", "nome_rodovia": "Antônio Bruno", "conservacao": "DER 14", "dp_responsavel": "(17) 3341 1867 / 3341 1254"},
-            {"pelotao": "2", "tipo": "SP", "numero": "373", "km_ini": 180.34, "km_fim": 189.03, "municipio": "Severínia", "nome_rodovia": "José Marcelino de Almeida (Juca de Almeida)", "conservacao": "DER 14", "dp_responsavel": "(17) 3817 1222"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 42.145, "km_fim": 57.87, "municipio": "Guaíra", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3331 2360 (1º DP)"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 57.87, "km_fim": 80.7, "municipio": "Guaíra", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3331 2360 (1º DP)"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 80.7, "km_fim": 92.0, "municipio": "Barretos", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 92.0, "km_fim": 102.0, "municipio": "Barretos", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 102.0, "km_fim": 127.99, "municipio": "Barretos", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SP", "numero": "425", "km_ini": 127.99, "km_fim": 157.55, "municipio": "Olímpia", "nome_rodovia": "Assis Chateaubriand", "conservacao": "DER 14", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "058/425", "km_ini": 0.0, "km_fim": 1.5, "municipio": "Guaíra", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3331 2360 (1º DP)"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "061/425", "km_ini": 0.0, "km_fim": 0.6, "municipio": "Guaíra", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3331 2360 (1º DP)"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "135/351", "km_ini": 0.0, "km_fim": 1.3, "municipio": "Viradouro", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Entrevias", "dp_responsavel": "(17) 3392 3839"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "137/425", "km_ini": 0.0, "km_fim": 3.39, "municipio": "Olímpia", "nome_rodovia": "Doutor Wilken Manoel Neves", "conservacao": "Prefeitura", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "137/425", "km_ini": 3.39, "km_fim": 4.89, "municipio": "Olímpia", "nome_rodovia": "Doutor Wilken Manoel Neves", "conservacao": "Prefeitura", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "140/373", "km_ini": 0.0, "km_fim": 0.484, "municipio": "Jaborandi", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Escrivã Dulce (17) 9 9131-5032 / (17) 3347 1134"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "357/326", "km_ini": 0.0, "km_fim": 5.29, "municipio": "Taiúva", "nome_rodovia": "Pedro Luiz Furlan", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "357/326", "km_ini": 5.29, "km_fim": 7.31, "municipio": "Taiúva", "nome_rodovia": "Pedro Luiz Furlan", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "357/326", "km_ini": 7.31, "km_fim": 11.057, "municipio": "Taiúva", "nome_rodovia": "Pedro Luiz Furlan", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "364/322", "km_ini": 0.0, "km_fim": 0.6, "municipio": "Pitangueiras", "nome_rodovia": "Nelson Marcelino da Silva", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "375/322", "km_ini": 0.0, "km_fim": 3.0, "municipio": "Pitangueiras", "nome_rodovia": "Guiné Fernandes Serrano", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "379/326", "km_ini": 0.0, "km_fim": 2.63, "municipio": "Bebedouro", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "405/326", "km_ini": 0.0, "km_fim": 0.89, "municipio": "Colina", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3341 1867 / 3341 1254"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "411/322", "km_ini": 0.0, "km_fim": 0.94, "municipio": "Monte Azul Paulista", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "419/322", "km_ini": 0.0, "km_fim": 0.66, "municipio": "Monte Azul Paulista", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "426/322", "km_ini": 0.0, "km_fim": 6.23, "municipio": "Cajobi", "nome_rodovia": "Augusto Medeiros Bulle", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "426/322", "km_ini": 6.23, "km_fim": 6.66, "municipio": "Cajobi", "nome_rodovia": "Augusto Medeiros Bulle", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "426/322", "km_ini": 6.66, "km_fim": 9.25, "municipio": "Cajobi", "nome_rodovia": "Augusto Medeiros Bulle", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "442/322", "km_ini": 0.0, "km_fim": 2.98, "municipio": "Olímpia", "nome_rodovia": "Álvaro Brito", "conservacao": "Prefeitura", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "442/322", "km_ini": 2.98, "km_fim": 4.49, "municipio": "Olímpia", "nome_rodovia": "Álvaro Brito", "conservacao": "Prefeitura", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "453/326", "km_ini": 0.0, "km_fim": 5.27, "municipio": "Colômbia", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3335 1003"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "458/322", "km_ini": 0.0, "km_fim": 0.88, "municipio": "Olímpia", "nome_rodovia": "Pedro Antunes Ferreira", "conservacao": "DER 14", "dp_responsavel": "(17) 3281-9998 / 3281 3568"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "462/322", "km_ini": 0.0, "km_fim": 8.7, "municipio": "Guaraci", "nome_rodovia": "Roberto Azeda Ribeiro de Aguiar", "conservacao": "DER 14", "dp_responsavel": "(17) 3815 1286"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "462/322", "km_ini": 8.7, "km_fim": 9.52, "municipio": "Guaraci", "nome_rodovia": "Roberto Azeda Ribeiro de Aguiar", "conservacao": "DER 14", "dp_responsavel": "(17) 3815 1286"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "473/322", "km_ini": 0.0, "km_fim": 3.1, "municipio": "Altair", "nome_rodovia": "Joaquim Elias Ribeiro de Aguiar", "conservacao": "DER 14", "dp_responsavel": "Escrivão Julio Cesar 9724-6808 / (17) 3889 1192"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "498/322", "km_ini": 0.0, "km_fim": 0.461, "municipio": "Icém", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Escrivão Reis / (17) 3282-2525 / 99706-6104"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "498/322", "km_ini": 0.461, "km_fim": 0.587, "municipio": "Icém", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Escrivão Reis / (17) 3282-2525 / 99706-6104"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "523/322", "km_ini": 0.0, "km_fim": 3.65, "municipio": "Orindiúva", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3816-1224"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "523/322", "km_ini": 3.65, "km_fim": 3.87, "municipio": "Orindiúva", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3816-1224"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "540/322", "km_ini": 0.0, "km_fim": 4.24, "municipio": "Paulo de Faria", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3292-1313"},
-            {"pelotao": "2", "tipo": "SPA", "numero": "542/322", "km_ini": 0.0, "km_fim": 0.66, "municipio": "Paulo de Faria", "nome_rodovia": "Teófilo Jaquim Ribeiro", "conservacao": "DER 14", "dp_responsavel": "(17) 3292-1313"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "322 D", "km_ini": 364.77, "km_fim": 365.5, "municipio": "Pitangueiras", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "322 D", "km_ini": 431.17, "km_fim": 431.53, "municipio": "Severínia", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3817 1222"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 D", "km_ini": 377.975, "km_fim": 378.683, "municipio": "Bebedouro", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 D", "km_ini": 420.515, "km_fim": 421.06, "municipio": "Barretos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 D", "km_ini": 423.1, "km_fim": 424.55, "municipio": "Barretos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 D", "km_ini": 465.46, "km_fim": 467.64, "municipio": "Colômbia", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3335 1003"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 E", "km_ini": 393.37, "km_fim": 393.87, "municipio": "Bebedouro", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 E", "km_ini": 422.93, "km_fim": 423.88, "municipio": "Barretos", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "(17) 3322 4455 / 3322-4652 / 3322 1551"},
-            {"pelotao": "2", "tipo": "SPM", "numero": "326 E", "km_ini": 465.46, "km_fim": 469.32, "municipio": "Colômbia", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "(17) 3335 1003"},
-            {"pelotao": "3", "tipo": "SP", "numero": "253", "km_ini": 204.29, "km_fim": 207.6, "municipio": "Guariba", "nome_rodovia": "Deputado Cunha Bueno", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "253", "km_ini": 207.6, "km_fim": 221.69, "municipio": "Jaboticabal", "nome_rodovia": "Deputado Cunha Bueno", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "304", "km_ini": 352.32, "km_fim": 384.1, "municipio": "Ibitinga", "nome_rodovia": "Deputado Leonidas Pachêco Ferreira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "304", "km_ini": 384.1, "km_fim": 406.7, "municipio": "Borborema", "nome_rodovia": "Deputado Leonidas Pachêco Ferreira", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "305", "km_ini": 0.0, "km_fim": 9.43, "municipio": "Jaboticabal", "nome_rodovia": "José Pizzarro", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "305", "km_ini": 9.43, "km_fim": 19.4, "municipio": "Monte Alto", "nome_rodovia": "José Pizzarro", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "310", "km_ini": 320.4, "km_fim": 343.5, "municipio": "Taquaritinga", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "310", "km_ini": 343.5, "km_fim": 348.0, "municipio": "Fernando Prestes", "nome_rodovia": "Washington Luís", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "317", "km_ini": 0.0, "km_fim": 11.0, "municipio": "Ibitinga", "nome_rodovia": "Professor Maurício Antunes Ferraz", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "317", "km_ini": 11.0, "km_fim": 22.0, "municipio": "Itápolis", "nome_rodovia": "Professor Maurício Antunes Ferraz", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "319", "km_ini": 0.0, "km_fim": 9.7, "municipio": "Taquaritinga", "nome_rodovia": "Engenheiro Thyrso Micali", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "321", "km_ini": 406.55, "km_fim": 414.9, "municipio": "Ibitinga", "nome_rodovia": "Cezário José de Castilho", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "323", "km_ini": 0.0, "km_fim": 5.75, "municipio": "Taquaritinga", "nome_rodovia": "José Della Vechia", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "323", "km_ini": 5.75, "km_fim": 28.2, "municipio": "Monte Alto", "nome_rodovia": "José Della Vechia", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "323", "km_ini": 28.2, "km_fim": 34.8, "municipio": "Vista Alegre do Alto", "nome_rodovia": "José Della Vechia", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "323", "km_ini": 34.8, "km_fim": 44.1, "municipio": "Pirangi", "nome_rodovia": "José Della Vechia", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 293.0, "km_fim": 309.95, "municipio": "Matão", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 309.95, "km_fim": 314.89, "municipio": "Dobrada", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 314.89, "km_fim": 322.08, "municipio": "Santa Ernestina", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 322.08, "km_fim": 327.9, "municipio": "Guariba", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 327.9, "km_fim": 330.5, "municipio": "Taquaritinga", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 330.5, "km_fim": 353.0, "municipio": "Jaboticabal", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "326", "km_ini": 353.0, "km_fim": 362.9, "municipio": "Taiúva", "nome_rodovia": "Brigadeiro Faria Lima", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "331", "km_ini": 29.2, "km_fim": 46.46, "municipio": "Tabatinga", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "331", "km_ini": 46.46, "km_fim": 57.5, "municipio": "Ibitinga", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "331", "km_ini": 57.5, "km_fim": 60.3, "municipio": "Ibitinga", "nome_rodovia": "Deputado Victor Maida", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "331", "km_ini": 60.3, "km_fim": 72.7, "municipio": "Ibitinga", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "331", "km_ini": 72.7, "km_fim": 77.15, "municipio": "Ibitinga", "nome_rodovia": "Hilário Spuri Jorge", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 103.1, "km_fim": 111.65, "municipio": "Jaboticabal", "nome_rodovia": "Carlos Tonanni", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 111.65, "km_fim": 129.2, "municipio": "Jaboticabal", "nome_rodovia": "Nemésio Cadetti (Ceará)", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 129.2, "km_fim": 144.0, "municipio": "Taquaritinga", "nome_rodovia": "Nemésio Cadetti (Ceará)", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 144.0, "km_fim": 157.55, "municipio": "Taquaritinga", "nome_rodovia": "Nemésio Cadetti (Ceará)", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 157.55, "km_fim": 165.15, "municipio": "Taquaritinga", "nome_rodovia": "Laurentino Mascari", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 165.15, "km_fim": 182.05, "municipio": "Itápolis", "nome_rodovia": "Laurentino Mascari", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 182.05, "km_fim": 197.75, "municipio": "Itápolis", "nome_rodovia": "Doutor Mário Gentil", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 197.75, "km_fim": 212.45, "municipio": "Borborema", "nome_rodovia": "Doutor Mário Gentil", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 212.45, "km_fim": 225.2, "municipio": "Borborema", "nome_rodovia": "Doutor Mário Gentil", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SP", "numero": "333", "km_ini": 225.2, "km_fim": 231.208, "municipio": "Novo Horizonte", "nome_rodovia": "Doutor Mário Gentil", "conservacao": "Entrevias", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "016/305", "km_ini": 0.0, "km_fim": 0.39, "municipio": "Monte Alto", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "020/317", "km_ini": 0.0, "km_fim": 0.6, "municipio": "Itápolis", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "030/323", "km_ini": 0.0, "km_fim": 0.2, "municipio": "Vista Alegre do Alto", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "031/323", "km_ini": 0.0, "km_fim": 0.2, "municipio": "Vista Alegre do Alto", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "040/323", "km_ini": 0.0, "km_fim": 0.15, "municipio": "Pirangi", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "040/323", "km_ini": 0.15, "km_fim": 1.15, "municipio": "Pirangi", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "040/331", "km_ini": 0.0, "km_fim": 2.1, "municipio": "Tabatinga", "nome_rodovia": "Joaquim Luiz Quarteiro", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "040/331", "km_ini": 2.1, "km_fim": 3.2, "municipio": "Tabatinga", "nome_rodovia": "Joaquim Luiz Quarteiro", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "107/333", "km_ini": 0.0, "km_fim": 4.02, "municipio": "Jaboticabal", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "112/333", "km_ini": 0.0, "km_fim": 6.83, "municipio": "Jaboticabal", "nome_rodovia": "Professor Paulo Donato Castellane", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "119/333", "km_ini": 0.0, "km_fim": 1.3, "municipio": "Jaboticabal", "nome_rodovia": "Nisoji Fujisaki", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "145/333", "km_ini": 0.0, "km_fim": 0.78, "municipio": "Taquaritinga", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "147/333", "km_ini": 0.0, "km_fim": 2.0, "municipio": "Taquaritinga", "nome_rodovia": "Engenheiro Thyrso Micali", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "160/333", "km_ini": 0.0, "km_fim": 1.23, "municipio": "Taquaritinga", "nome_rodovia": "Eitel Bassoli", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "168/333", "km_ini": 0.0, "km_fim": 0.4, "municipio": "Itápolis", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "182/333", "km_ini": 0.0, "km_fim": 3.3, "municipio": "Itápolis", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "182/333", "km_ini": 3.3, "km_fim": 4.0, "municipio": "Itápolis", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "209/333", "km_ini": 0.0, "km_fim": 2.0, "municipio": "Borborema", "nome_rodovia": "Antonio Mazutto", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "302/326", "km_ini": 0.0, "km_fim": 1.55, "municipio": "Matão", "nome_rodovia": "Via Narciso Baldan", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "302/326", "km_ini": 1.55, "km_fim": 2.184, "municipio": "Matão", "nome_rodovia": "Via Narciso Baldan", "conservacao": "Prefeitura", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "312/326", "km_ini": 0.0, "km_fim": 6.55, "municipio": "Dobrada", "nome_rodovia": "Eugênio Comar", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "318/326", "km_ini": 0.0, "km_fim": 7.15, "municipio": "Santa Ernestina", "nome_rodovia": "Sérgio Antonio Corona Filho", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "336/326", "km_ini": 0.0, "km_fim": 6.75, "municipio": "Jaboticabal", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "341/310", "km_ini": 0.0, "km_fim": 11.3, "municipio": "Taquaritinga", "nome_rodovia": "Sonia Civolani Simonai", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "341/310", "km_ini": 11.3, "km_fim": 11.55, "municipio": "Cândido Rodrigues", "nome_rodovia": "Sonia Civolani Simonai", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "341/326", "km_ini": 0.0, "km_fim": 1.86, "municipio": "Jaboticabal", "nome_rodovia": "João Honório Cardoso", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "348/310", "km_ini": 0.0, "km_fim": 10.118, "municipio": "Fernando Prestes", "nome_rodovia": "Armando Alves da Cunha", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "357/326", "km_ini": 11.057, "km_fim": 12.97, "municipio": "Taiaçu", "nome_rodovia": "Doutor Alpheu Rampazo", "conservacao": "DER 14", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "363/304", "km_ini": 0.0, "km_fim": 13.44, "municipio": "Ibitinga", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "365/304", "km_ini": 0.0, "km_fim": 2.9, "municipio": "Ibitinga", "nome_rodovia": "Manoel Alves Lopes", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPA", "numero": "394/304", "km_ini": 0.0, "km_fim": 0.73, "municipio": "Borborema", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPI", "numero": "328/326", "km_ini": 0.0, "km_fim": 17.1, "municipio": "Guariba", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "DER 4", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPM", "numero": "326 D", "km_ini": 339.3, "km_fim": 341.2, "municipio": "Jaboticabal", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
-            {"pelotao": "3", "tipo": "SPM", "numero": "326 E", "km_ini": 299.82, "km_fim": 300.4, "municipio": "Matão", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"}
+            {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 131.5, "km_fim": 146.7, "municipio": "São Carlos", "nome_rodovia": "Doutor Paulo Lauro", "conservacao": "Intervias", "dp_responsavel": "(16) 3362-1100"},
+            {"pelotao": "2", "tipo": "SP", "numero": "322", "km_ini": 355.68, "km_fim": 381.22, "municipio": "Pitangueiras", "nome_rodovia": "Armando de Salles Oliveira", "conservacao": "Entrevias", "dp_responsavel": "(16) 3952-1111"},
+            {"pelotao": "3", "tipo": "SP", "numero": "304", "km_ini": 352.32, "km_fim": 384.1, "municipio": "Ibitinga", "nome_rodovia": "Deputado Leonidas Pachêco", "conservacao": "DER 4", "dp_responsavel": "(16) 3342-2222"}
         ];
 
-        // --- FUNÇÕES DE INTERFACE PARA FICAREM GLOBAIS ---
+        const bancoInfracoesTop15 = [
+            { categoria: "🏃 Em Movimento", artigo: "Art. 203, V", tema: "Ultrapassagem em Faixa Contínua", descricao: "Ultrapassar pela contramão onde houver marcação contínua.", autuar: "Invasão da contramão para ultrapassar.", naoAutuar: "Rodas sobre a linha sem ultrapassar (Art 185).", medida: "Autuação (Gravíssima x5)", rd: "NÃO" },
+            { categoria: "🏃 Em Movimento", artigo: "Art. 252, VI", tema: "Uso do Celular", descricao: "Dirigir manuseando ou segurando o celular.", autuar: "Condutor com o aparelho na mão ou ouvido.", naoAutuar: "Aparelho no suporte usado como GPS.", medida: "Autuação", rd: "NÃO" },
+            { categoria: "🛑 Com Abordagem", artigo: "Art. 165", tema: "Embriaguez", descricao: "Dirigir sob influência de álcool.", autuar: "Teste >= 0,05 mg/L.", naoAutuar: "Teste até 0,04 mg/L.", medida: "Recolher CNH. Reter veículo.", rd: "SIM (CNH)" },
+            { categoria: "🛑 Com Abordagem", artigo: "Art. 230, V", tema: "Licenciamento", descricao: "Veículo não licenciado.", autuar: "CRLV vencido sem pagamento.", naoAutuar: "Pagamento feito e comprovado.", medida: "Remoção ao pátio.", rd: "NÃO" }
+        ];
+
+        const bancoInfracoesNormal = [
+            { artigo: "Art. 167", tema: "Sem Cinto", descricao: "Condutor ou passageiro sem cinto.", autuar: "Em circulação na via sem cinto.", naoAutuar: "Manobrando em posto.", medida: "Reter até colocação.", rd: "NÃO" },
+            { artigo: "Art. 230, XVIII", tema: "Pneu Careca", descricao: "Mau estado de conservação.", autuar: "TWI tocando o solo.", naoAutuar: "Desgaste apenas nas bordas.", medida: "Reter para troca.", rd: "SIM (CRLV)" }
+        ];
+        const bancoInfracoesMoto = [
+            { artigo: "Art. 244, I", tema: "Sem Capacete", descricao: "Conduzir sem capacete.", autuar: "Sem capacete ou desafivelado.", naoAutuar: "Apenas viseira levantada.", medida: "Recolher CNH.", rd: "SIM (CNH)" }
+        ];
+        const bancoInfracoesCaminhao = [
+            { artigo: "Art. 230, IX", tema: "Lona/Fitas", descricao: "Equipamento inoperante.", autuar: "Sem lona ou faixa suja de barro.", naoAutuar: "Pequeno furo na lona.", medida: "Reter para limpar/esticar.", rd: "SIM (CRLV)" }
+        ];
+
+        // --- FUNÇÕES DE INTERFACE ---
         function showScreen(screenId) {
             const telas = ['home', 'loc', 'gps', 'mbft', 'juridico', 'links', 'vtr', 'bo'];
-            telas.forEach(t => {
-                const elemento = document.getElementById(t);
-                if (elemento) {
-                    elemento.classList.add('hidden');
-                }
-            });
+            telas.forEach(t => { const el = document.getElementById(t); if(el) el.classList.add('hidden'); });
             const telaAtiva = document.getElementById(screenId);
-            if (telaAtiva) {
-                telaAtiva.classList.remove('hidden');
-            }
+            if(telaAtiva) telaAtiva.classList.remove('hidden');
             const titulo = document.getElementById('tela-titulo');
             const btnVoltar = document.getElementById('btn-voltar');
             
@@ -619,13 +382,10 @@
                 if (screenId === 'loc') titulo.innerText = "📍 Localização/Info";
                 if (screenId === 'gps') titulo.innerText = "🌍 Onde Estou";
                 if (screenId === 'juridico') titulo.innerText = "⚖️ Embasamento";
-                if (screenId === 'bo') { titulo.innerText = "📝 Exemplos BO"; renderizarListas(); }
-                if (screenId === 'mbft') {
-                    titulo.innerText = "📖 MBFT (Infrações)";
-                    voltarCategoriasMbft(); 
-                }
-                if (screenId === 'links') { titulo.innerText = "🔗 Links Úteis"; renderizarListas(); }
-                if (screenId === 'vtr') { titulo.innerText = "🚓 Links VTR"; renderizarListas(); }
+                if (screenId === 'bo') { titulo.innerText = "📝 Exemplos BO"; window.renderizarListas(); }
+                if (screenId === 'mbft') { titulo.innerText = "📖 MBFT (Infrações)"; window.voltarCategoriasMbft(); }
+                if (screenId === 'links') { titulo.innerText = "🔗 Links Úteis"; window.renderizarListas(); }
+                if (screenId === 'vtr') { titulo.innerText = "🚓 Links VTR"; window.renderizarListas(); }
             }
         }
 
@@ -633,188 +393,119 @@
             if (!selectElement) return;
             selectElement.innerHTML = '';
             options.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt;
-                option.textContent = opt + suffix;
-                selectElement.appendChild(option);
+                const o = document.createElement('option');
+                o.value = opt;
+                o.textContent = opt + suffix;
+                selectElement.appendChild(o);
             });
         }
 
         function updateRodovias() {
-            const pelotaoSelect = document.getElementById('pelotao');
-            const rodoviaSelect = document.getElementById('rodovia');
-            if (!pelotaoSelect || !rodoviaSelect) return;
-            const pelotao = pelotaoSelect.value;
-            const rodoviasDisponiveis = [...new Set(
-                malhaRodoviaria.filter(item => item.pelotao === pelotao).map(item => item.tipo + ' ' + item.numero)
-            )].sort();
-            populateSelect(rodoviaSelect, rodoviasDisponiveis);
-            buscarDados();
+            const p = document.getElementById('pelotao');
+            const r = document.getElementById('rodovia');
+            if(!p || !r) return;
+            const disponiveis = [...new Set(malhaRodoviaria.filter(i => i.pelotao === p.value).map(i => i.tipo + ' ' + i.numero))].sort();
+            populateSelect(r, disponiveis);
+            window.buscarDados();
         }
 
         function buscarDados() {
-            const pelotaoSelect = document.getElementById('pelotao');
-            const rodoviaSelect = document.getElementById('rodovia');
-            const kmInput = document.getElementById('km');
-            const resultadoDiv = document.getElementById('resultado');
-            
-            if (!pelotaoSelect || !rodoviaSelect || !kmInput || !resultadoDiv) return;
-            
-            const pelotao = pelotaoSelect.value;
-            const rodoviaSelecionada = rodoviaSelect.value;
-            const kmVal = kmInput.value.replace(',', '.');
-            const km = parseFloat(kmVal);
+            const p = document.getElementById('pelotao');
+            const r = document.getElementById('rodovia');
+            const k = document.getElementById('km');
+            const res = document.getElementById('resultado');
+            if(!p || !r || !k || !res) return;
+            const km = parseFloat(k.value.replace(',', '.'));
+            if(isNaN(km) || k.value.trim() === '') { res.classList.add('hidden'); return; }
 
-            if (isNaN(km) || kmVal.trim() === '') {
-                resultadoDiv.classList.add('hidden');
-                return;
-            }
-
-            const trechos = malhaRodoviaria.filter(t => 
-                t.pelotao === pelotao && 
-                (t.tipo + ' ' + t.numero) === rodoviaSelecionada && 
-                km >= t.km_ini && 
-                km <= t.km_fim
-            );
-
-            resultadoDiv.classList.remove('hidden');
-
-            if (trechos.length > 0) {
-                const trecho = trechos[0];
-                const dpTelefone = dpsContatos[trecho.municipio] || trecho.dp_responsavel;
-                const ccoTelefone = ccoContatos[trecho.conservacao] || "Não cadastrado";
-                
-                resultadoDiv.style.borderLeftColor = "#28a745";
-                resultadoDiv.innerHTML = `
-                    <div class="result-item"><span>🛣️ Rodovia:</span> ${trecho.nome_rodovia}</div>
-                    <div class="result-item"><span>📍 Município:</span> ${trecho.municipio}</div>
-                    <div class="result-item"><span>🚧 Conservação:</span> ${trecho.conservacao}</div>
-                    <div class="result-item" style="color:#0056b3;"><span>📞 CCO (${trecho.conservacao}):</span><br> ${ccoTelefone}</div>
-                    <hr style="border: 0.5px solid #ccc; margin: 15px 0;">
-                    <div class="result-item" style="color:#d9534f;"><span>🚔 DP Responsável (${trecho.municipio}):</span><br> ${dpTelefone}</div>
-                `;
+            const trechos = malhaRodoviaria.filter(t => t.pelotao === p.value && (t.tipo + ' ' + t.numero) === r.value && km >= t.km_ini && km <= t.km_fim);
+            res.classList.remove('hidden');
+            if(trechos.length > 0) {
+                const tr = trechos[0];
+                const telDp = dpsContatos[tr.municipio] || tr.dp_responsavel;
+                const telCco = ccoContatos[tr.conservacao] || "Não cadastrado";
+                res.style.borderLeftColor = "#28a745";
+                res.innerHTML = `<div class="result-item"><span>🛣️ Rodovia:</span> ${tr.nome_rodovia}</div><div class="result-item"><span>📍 Município:</span> ${tr.municipio}</div><div class="result-item"><span>🚧 Conservação:</span> ${tr.conservacao}</div><div class="result-item" style="color:#0056b3;"><span>📞 CCO:</span><br> ${telCco}</div><hr style="border: 0.5px solid #ccc; margin: 15px 0;"><div class="result-item" style="color:#d9534f;"><span>🚔 DP (${tr.municipio}):</span><br> ${telDp}</div>`;
             } else {
-                resultadoDiv.style.borderLeftColor = "#d9534f";
-                resultadoDiv.innerHTML = `<strong>❌ Trecho não localizado.</strong><br>O KM ${km} não pertence à ${rodoviaSelecionada} neste Pelotão.`;
+                res.style.borderLeftColor = "#d9534f";
+                res.innerHTML = `<strong>❌ Trecho não localizado.</strong><br>O KM ${km} não pertence à ${r.value}.`;
             }
         }
 
         function abrirAdmin(tipo) {
             if (!isAdminLogado) {
-                const senha = prompt("Digite a senha do Administrador:");
-                if (senha === "3BPRv") {
-                    isAdminLogado = true;
-                    alert("Acesso Liberado!");
-                } else {
-                    alert("Senha incorreta!");
-                    return;
-                }
+                if (prompt("Digite a senha do Administrador:") === "3BPRv") {
+                    isAdminLogado = true; alert("Acesso Liberado!");
+                } else { alert("Senha incorreta!"); return; }
             }
-            if (tipo === 'links') document.getElementById('admin-panel-links').style.display = 'block';
-            if (tipo === 'vtr') document.getElementById('admin-panel-vtr').style.display = 'block';
-            if (tipo === 'bo') document.getElementById('admin-panel-bo').style.display = 'block';
-            if (tipo === 'dps') {
-                document.getElementById('admin-panel-dps').style.display = 'block';
-                renderizarEdicaoDPs();
-                renderizarEdicaoCCOs();
+            if(tipo==='links') document.getElementById('admin-panel-links').style.display='block';
+            if(tipo==='vtr') document.getElementById('admin-panel-vtr').style.display='block';
+            if(tipo==='bo') document.getElementById('admin-panel-bo').style.display='block';
+            if(tipo==='dps') {
+                document.getElementById('admin-panel-dps').style.display='block';
+                window.renderizarEdicaoDPs(); window.renderizarEdicaoCCOs();
             }
-            renderizarListas();
+            window.renderizarListas();
         }
 
         function renderizarEdicaoCCOs() {
             const div = document.getElementById('lista-editar-ccos');
             div.innerHTML = '';
-            const conservacoes = Object.keys(ccoContatos).sort();
-            conservacoes.forEach((c, index) => {
-                div.innerHTML += `
-                    <div class="form-group" style="margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                        <label style="color:#0056b3;">📞 ${c}</label>
-                        <input type="text" id="cco_input_${index}" value="${ccoContatos[c]}" style="margin-bottom: 5px; font-size: 14px;">
-                        <button class="btn-add" style="padding: 5px; background: #007bff;" onclick="window.salvarCCO('${c}', ${index})">💾 Salvar CCO</button>
-                    </div>
-                `;
+            Object.keys(ccoContatos).sort().forEach((c, i) => {
+                div.innerHTML += `<div class="form-group" style="background:#f8f9fa; padding:10px; border-radius:5px; border:1px solid #ddd; margin-bottom:10px;"><label style="color:#0056b3;">📞 ${c}</label><input type="text" id="cco_input_${i}" value="${ccoContatos[c]}" style="margin-bottom:5px;"><button class="btn-add" style="padding:5px; background:#007bff;" onclick="window.salvarCCO('${c}', ${i})">💾 Salvar</button></div>`;
             });
         }
 
-        function salvarCCO(conservacao, index) {
-            const novoTel = document.getElementById(`cco_input_${index}`).value;
-            ccoContatos[conservacao] = novoTel;
-            set(dbCcos, ccoContatos);
-            alert(`CCO de ${conservacao} atualizado na nuvem!`);
-            buscarDados();
+        function salvarCCO(conservacao, i) {
+            ccoContatos[conservacao] = document.getElementById(`cco_input_${i}`).value;
+            set(dbCcos, ccoContatos); alert("CCO atualizado na nuvem!"); window.buscarDados();
         }
 
         function renderizarEdicaoDPs() {
             const div = document.getElementById('lista-editar-dps');
             div.innerHTML = '';
-            const municipios = Object.keys(dpsContatos).sort();
-            municipios.forEach((m, index) => {
-                div.innerHTML += `
-                    <div class="form-group" style="margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                        <label>🚔 ${m}</label>
-                        <input type="text" id="dp_input_${index}" value="${dpsContatos[m]}" style="margin-bottom: 5px; font-size: 14px;">
-                        <button class="btn-add" style="padding: 5px; background: #28a745;" onclick="window.salvarDP('${m}', ${index})">💾 Salvar DP</button>
-                    </div>
-                `;
+            Object.keys(dpsContatos).sort().forEach((m, i) => {
+                div.innerHTML += `<div class="form-group" style="background:#fff; padding:10px; border-radius:5px; border:1px solid #ddd; margin-bottom:10px;"><label>🚔 ${m}</label><input type="text" id="dp_input_${i}" value="${dpsContatos[m]}" style="margin-bottom:5px;"><button class="btn-add" style="padding:5px; background:#28a745;" onclick="window.salvarDP('${m}', ${i})">💾 Salvar</button></div>`;
             });
         }
 
-        function salvarDP(municipio, index) {
-            const novoTel = document.getElementById(`dp_input_${index}`).value;
-            dpsContatos[municipio] = novoTel;
-            set(dbDps, dpsContatos);
-            alert(`Telefone de ${municipio} atualizado na nuvem!`);
-            buscarDados();
+        function salvarDP(municipio, i) {
+            dpsContatos[municipio] = document.getElementById(`dp_input_${i}`).value;
+            set(dbDps, dpsContatos); alert("DP atualizado na nuvem!"); window.buscarDados();
         }
 
         function adicionarItem(tipo) {
-            if (tipo === 'links') {
-                const nome = document.getElementById('link-nome').value.trim();
-                const url = document.getElementById('link-url').value.trim();
-                if (!nome || !url) return alert("Preencha o nome e o link!");
-                linksGlobais.push({ nome, url });
-                set(dbLinks, linksGlobais);
-                document.getElementById('link-nome').value = '';
-                document.getElementById('link-url').value = '';
-            } else if (tipo === 'vtr') {
-                const nome = document.getElementById('vtr-nome').value.trim();
-                const url = document.getElementById('vtr-url').value.trim();
-                if (!nome || !url) return alert("Preencha a VTR e o link!");
-                vtrsGlobais.push({ nome, url });
-                set(dbVtrs, vtrsGlobais);
-                document.getElementById('vtr-nome').value = '';
-                document.getElementById('vtr-url').value = '';
-            } else if (tipo === 'bo') {
-                const titulo = document.getElementById('bo-titulo').value.trim();
-                const texto = document.getElementById('bo-texto-add').value.trim();
-                if (!titulo || !texto) return alert("Preencha o título e o texto do modelo de BO!");
-                bosGlobais.push({ titulo, texto });
-                set(dbBos, bosGlobais);
-                document.getElementById('bo-titulo').value = '';
-                document.getElementById('bo-texto-add').value = '';
+            if(tipo==='links') {
+                const n = document.getElementById('link-nome').value, u = document.getElementById('link-url').value;
+                if(!n||!u) return alert("Preencha!");
+                linksGlobais.push({nome:n, url:u}); set(dbLinks, linksGlobais);
+                document.getElementById('link-nome').value=''; document.getElementById('link-url').value='';
+            }
+            if(tipo==='vtr') {
+                const n = document.getElementById('vtr-nome').value, u = document.getElementById('vtr-url').value;
+                if(!n||!u) return alert("Preencha!");
+                vtrsGlobais.push({nome:n, url:u}); set(dbVtrs, vtrsGlobais);
+                document.getElementById('vtr-nome').value=''; document.getElementById('vtr-url').value='';
+            }
+            if(tipo==='bo') {
+                const tit = document.getElementById('bo-titulo').value, txt = document.getElementById('bo-texto-add').value;
+                if(!tit||!txt) return alert("Preencha!");
+                bosGlobais.push({titulo:tit, texto:txt}); set(dbBos, bosGlobais);
+                document.getElementById('bo-titulo').value=''; document.getElementById('bo-texto-add').value='';
             }
         }
 
-        function excluirItem(tipo, index) {
-            if (confirm("Tem certeza que deseja excluir este item para todo o pelotão?")) {
-                if(tipo === 'links') {
-                    linksGlobais.splice(index, 1);
-                    set(dbLinks, linksGlobais);
-                } else if (tipo === 'vtr') {
-                    vtrsGlobais.splice(index, 1);
-                    set(dbVtrs, vtrsGlobais);
-                } else if (tipo === 'bo') {
-                    bosGlobais.splice(index, 1);
-                    set(dbBos, bosGlobais);
-                }
+        function excluirItem(tipo, i) {
+            if(confirm("Excluir para todos?")) {
+                if(tipo==='links'){ linksGlobais.splice(i,1); set(dbLinks, linksGlobais); }
+                if(tipo==='vtr'){ vtrsGlobais.splice(i,1); set(dbVtrs, vtrsGlobais); }
+                if(tipo==='bo'){ bosGlobais.splice(i,1); set(dbBos, bosGlobais); }
             }
         }
 
-        function salvarEdicaoBO(index) {
-            const novoTexto = document.getElementById('texto-bo-' + index).value;
-            bosGlobais[index].texto = novoTexto;
-            set(dbBos, bosGlobais);
-            alert("💾 Alteração salva na nuvem com sucesso!");
+        function salvarEdicaoBO(i) {
+            bosGlobais[i].texto = document.getElementById('texto-bo-'+i).value;
+            set(dbBos, bosGlobais); alert("Salvo na nuvem!");
         }
 
         function voltarCategoriasMbft() {
@@ -822,306 +513,128 @@
             document.getElementById('mbft-conteudo').classList.add('hidden');
         }
 
-        function abrirCategoriaMbft(categoria) {
-            abaAtivaMbft = categoria;
+        function abrirCategoriaMbft(cat) {
+            abaAtivaMbft = cat;
             document.getElementById('mbft-categorias').classList.add('hidden');
             document.getElementById('mbft-conteudo').classList.remove('hidden');
+            const inpt = document.getElementById('busca-infra'); if(inpt) inpt.value = '';
             
-            const aviso = document.getElementById('mbft-aviso');
-            const tituloCat = document.getElementById('mbft-titulo-cat');
-            const buscaInput = document.getElementById('busca-infra');
-            if (buscaInput) buscaInput.value = '';
-
-            if (categoria === 'top') {
-                tituloCat.innerHTML = "⭐ As 15+ Frequentes";
-                aviso.innerText = "As infrações mais recorrentes no policiamento rodoviário.";
-            } else if (categoria === 'norm') {
-                tituloCat.innerHTML = "🚗 Veículo de Passeio";
-                aviso.innerText = "Infrações comuns em fiscalização de carros.";
-            } else if (categoria === 'moto') {
-                tituloCat.innerHTML = "🏍️ Motocicleta";
-                aviso.innerText = "Infrações focadas no uso de motos e capacetes.";
-            } else if (categoria === 'cam') {
-                tituloCat.innerHTML = "🚛 Caminhão / Carga";
-                aviso.innerText = "Focado em dimensões, peso e conservação.";
-            } else if (categoria === 'pesq') {
-                tituloCat.innerHTML = "🔍 Pesquisa Livre";
-                aviso.innerText = "Buscando pelo artigo, tema ou descrição em toda a base.";
-            }
-            renderizarInfracoes();
+            const tit = document.getElementById('mbft-titulo-cat'), avi = document.getElementById('mbft-aviso');
+            if(cat==='top'){ tit.innerText="⭐ As 15+ Frequentes"; avi.innerText="As infrações mais recorrentes."; }
+            else if(cat==='norm'){ tit.innerText="🚗 Veículo"; avi.innerText="Carros de passeio."; }
+            else if(cat==='moto'){ tit.innerText="🏍️ Moto"; avi.innerText="Infrações de motocicleta."; }
+            else if(cat==='cam'){ tit.innerText="🚛 Caminhão"; avi.innerText="Peso e dimensões."; }
+            else if(cat==='pesq'){ tit.innerText="🔍 Pesquisa Livre"; avi.innerText="Buscando em tudo."; }
+            
+            window.renderizarInfracoes();
         }
 
-        function renderizarInfracoes(termo) {
-            if (typeof termo === 'undefined') termo = '';
-            const div = document.getElementById('lista-infracoes');
-            if (!div) return; 
+        function renderizarInfracoes(termo = '') {
+            const div = document.getElementById('lista-infracoes'); if(!div) return;
             div.innerHTML = '';
+            let base = [];
+            if(abaAtivaMbft==='top') base = bancoInfracoesTop15;
+            else if(abaAtivaMbft==='norm') base = bancoInfracoesNormal;
+            else if(abaAtivaMbft==='moto') base = bancoInfracoesMoto;
+            else if(abaAtivaMbft==='cam') base = bancoInfracoesCaminhao;
+            else if(abaAtivaMbft==='pesq') base = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao].filter((v,i,a)=>a.findIndex(v2=>v2.artigo===v.artigo)===i);
             
-            let listaBase = [];
-            if (abaAtivaMbft === 'top') {
-                listaBase = bancoInfracoesTop15;
-            } else if (abaAtivaMbft === 'norm') {
-                listaBase = bancoInfracoesNormal;
-            } else if (abaAtivaMbft === 'moto') {
-                listaBase = bancoInfracoesMoto;
-            } else if (abaAtivaMbft === 'cam') {
-                listaBase = bancoInfracoesCaminhao;
-            } else if (abaAtivaMbft === 'pesq') {
-                listaBase = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao, ...bancoInfracoesGeral];
-                listaBase = listaBase.filter((v,i,a) => a.findIndex(v2 => (v2.artigo === v.artigo)) === i);
-            }
+            let filt = base;
+            if(termo) filt = base.filter(i => i.artigo.toLowerCase().includes(termo.toLowerCase()) || i.tema.toLowerCase().includes(termo.toLowerCase()) || i.descricao.toLowerCase().includes(termo.toLowerCase()));
             
-            let listaFiltrada = listaBase;
-            if (termo !== '') {
-                const t = termo.toLowerCase();
-                listaFiltrada = listaBase.filter(i => 
-                    i.artigo.toLowerCase().includes(t) || 
-                    i.tema.toLowerCase().includes(t) ||
-                    i.descricao.toLowerCase().includes(t) ||
-                    i.autuar.toLowerCase().includes(t)
-                );
-            }
+            if(filt.length===0){ div.innerHTML='<p style="color:red;text-align:center;">Nada encontrado.</p>'; return; }
             
-            if (listaFiltrada.length === 0) {
-                div.innerHTML = '<p style="text-align:center; color:red; margin-top:20px;">Nenhuma infração encontrada na busca.</p>';
-                return;
-            }
-
-            let categoriaAtual = "";
-            listaFiltrada.forEach(infra => {
-                if (abaAtivaMbft === 'top' && infra.categoria && infra.categoria !== categoriaAtual) {
-                    categoriaAtual = infra.categoria;
-                    div.innerHTML += `<div class="categoria-header">${categoriaAtual}</div>`;
-                }
-
-                div.innerHTML += `
-                    <div class="infra-card">
-                        <h4 class="infra-title">${infra.artigo} - ${infra.tema}</h4>
-                        <p class="infra-desc">${infra.descricao}</p>
-                        <div class="infra-box box-autuar"><strong>✅ QUANDO AUTUAR:</strong> ${infra.autuar}</div>
-                        <div class="infra-box box-nao-autuar"><strong>❌ QUANDO NÃO AUTUAR:</strong> ${infra.naoAutuar}</div>
-                        <div class="infra-medida">⚠️ Ação/Medida: ${infra.medida}</div>
-                        <div class="infra-rd">📄 Faz RD (Recolha)? <br> ${infra.rd}</div>
-                    </div>
-                `;
+            let catAtual = "";
+            filt.forEach(inf => {
+                if(abaAtivaMbft==='top' && inf.categoria && inf.categoria !== catAtual) { catAtual=inf.categoria; div.innerHTML+=`<div class="categoria-header">${catAtual}</div>`; }
+                div.innerHTML += `<div class="infra-card"><h4 class="infra-title">${inf.artigo} - ${inf.tema}</h4><p class="infra-desc">${inf.descricao}</p><div class="infra-box box-autuar"><strong>✅ AUTUAR:</strong> ${inf.autuar}</div><div class="infra-box box-nao-autuar"><strong>❌ NÃO AUTUAR:</strong> ${inf.naoAutuar}</div><div class="infra-medida">⚠️ Medida: ${inf.medida}</div></div>`;
             });
         }
 
-        function filtrarInfracoes() {
-            const termo = document.getElementById('busca-infra').value;
-            renderizarInfracoes(termo);
+        function filtrarInfracoes() { window.renderizarInfracoes(document.getElementById('busca-infra').value); }
+
+        function toggleBO(i) {
+            const c = document.getElementById('bo-conteudo-'+i), b = document.getElementById('btn-visu-'+i);
+            if(c.style.display==='none' || !c.style.display){ c.style.display='block'; b.innerText='➖ Ocultar'; b.style.background='#6c757d'; }
+            else { c.style.display='none'; b.innerText='👁️ Ver'; b.style.background='#17a2b8'; }
+        }
+
+        function copiarBO(i) {
+            const txt = document.getElementById('texto-bo-'+i), c = document.getElementById('bo-conteudo-'+i);
+            if(c.style.display==='none'||!c.style.display) window.toggleBO(i);
+            setTimeout(()=>{ txt.select(); txt.setSelectionRange(0,99999); navigator.clipboard.writeText(txt.value).then(()=>alert("✅ Copiado!")).catch(()=>alert("❌ Erro ao copiar.")); }, 50);
         }
 
         function buscarLocalReal() {
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            painelGeo.classList.remove('hidden');
-            painelGeo.innerHTML = "Buscando satélites... Aguarde (pode levar até 10 seg) 🛰️";
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sucessoGeo, erroGeo, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
-            } else {
-                painelGeo.innerHTML = "❌ Seu navegador não suporta GPS.";
-            }
+            const p = document.getElementById('painel-resultado-geo'); p.classList.remove('hidden'); p.innerHTML="Buscando satélites... 🛰️";
+            if(navigator.geolocation) navigator.geolocation.getCurrentPosition(sucessoGeo, erroGeo, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+            else p.innerHTML="❌ GPS não suportado.";
         }
 
-        function sucessoGeo(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            const divMapa = document.getElementById('mapa');
-            painelGeo.innerHTML = "Lendo coordenadas e carregando mapa livre... 🌍";
-            divMapa.style.display = 'block';
+        function sucessoGeo(pos) {
+            const p = document.getElementById('painel-resultado-geo'), d = document.getElementById('mapa');
+            p.innerHTML="Carregando mapa... 🌍"; d.style.display='block';
+            if(meuMapa!==null) meuMapa.remove();
+            meuMapa = L.map('mapa').setView([pos.coords.latitude, pos.coords.longitude], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(meuMapa);
+            L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(meuMapa).bindPopup('Você está aqui!').openPopup();
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=18&addressdetails=1`).then(r=>r.json()).then(data=>{
+                if(data && data.display_name) p.innerHTML=`<strong>Você está em:</strong><br><br><span style="color:#2a3f54;">${data.display_name}</span>`;
+            });
+        }
+        function erroGeo(err) { document.getElementById('painel-resultado-geo').innerHTML=`<strong>❌ Falha no GPS:</strong> Ative a localização do celular.`; }
 
-            if (meuMapa !== null) { meuMapa.remove(); }
-            meuMapa = L.map('mapa').setView([lat, lng], 16);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(meuMapa);
-            L.marker([lat, lng]).addTo(meuMapa).bindPopup('Você está aqui!').openPopup();
-
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        painelGeo.innerHTML = `<strong>Você está em:</strong><br><br> <span style="color:#2a3f54; font-size:16px;">${data.display_name}</span>`;
-                        if(data.address && data.address.road) painelGeo.innerHTML += `<br><br><em>Via principal identificada: <b style="color:#28a745;">${data.address.road}</b></em>`;
-                    } else {
-                        painelGeo.innerHTML = "Endereço não encontrado na base aberta.";
-                    }
-                }).catch(() => { painelGeo.innerHTML = "Erro ao conectar com o serviço de endereços."; });
+        function renderizarListas() {
+            const dL = document.getElementById('lista-links');
+            if(dL) { dL.innerHTML=''; linksGlobais.forEach((it, i) => dL.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('links',${i})">🗑️ Excluir</span>`:''}</div>`); }
+            const dV = document.getElementById('lista-vtr');
+            if(dV) { dV.innerHTML=''; vtrsGlobais.forEach((it, i) => dV.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('vtr',${i})">🗑️ Excluir</span>`:''}</div>`); }
+            const dB = document.getElementById('lista-bo');
+            if(dB) { dB.innerHTML=''; bosGlobais.forEach((it, i) => dB.innerHTML+=`<div class="bo-card"><div class="bo-header"><strong>${it.titulo}</strong><div class="bo-actions"><button id="btn-visu-${i}" class="btn-visualizar" onclick="window.toggleBO(${i})">👁️ Ver</button><button class="btn-copiar" onclick="window.copiarBO(${i})">📋 Copiar</button></div></div><div id="bo-conteudo-${i}" style="display:none;"><textarea id="texto-bo-${i}" class="bo-texto" ${isAdminLogado?'':'readonly'}>${it.texto}</textarea>${isAdminLogado?`<div class="bo-admin-actions"><button class="btn-bo-edit" onclick="window.salvarEdicaoBO(${i})">💾 Salvar Edição Fixa</button><button class="btn-bo-del" onclick="window.excluirItem('bo',${i})">🗑️ Excluir</button></div>`:''}</div></div>`); }
         }
 
-        function erroGeo(err) {
-            const painelGeo = document.getElementById('painel-resultado-geo');
-            painelGeo.classList.remove('hidden');
-            let motivo = err.message;
-            if (err.code === 1) motivo = "Você não deu permissão de localização no navegador.";
-            if (err.code === 2) motivo = "O navegador não conseguiu acessar a antena do seu GPS.";
-            if (err.code === 3) motivo = "Tempo esgotado! O sinal do GPS está muito fraco.";
-            painelGeo.innerHTML = `<strong>❌ Falha no GPS:</strong> ${motivo}<br><br><em>Dica: Ligue a "Localização" do celular.</em>`;
-        }
-
-        function toggleBO(index) {
-            const conteudo = document.getElementById('bo-conteudo-' + index);
-            const btn = document.getElementById('btn-visu-' + index);
-            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
-                conteudo.style.display = 'block';
-                btn.innerHTML = '➖ Ocultar';
-                btn.style.background = '#6c757d';
-            } else {
-                conteudo.style.display = 'none';
-                btn.innerHTML = '👁️ Ver';
-                btn.style.background = '#17a2b8';
-            }
-        }
-
-        function copiarBO(index) {
-            const areaTexto = document.getElementById('texto-bo-' + index);
-            const conteudo = document.getElementById('bo-conteudo-' + index);
-            if (conteudo.style.display === 'none' || conteudo.style.display === '') toggleBO(index);
-            setTimeout(() => {
-                areaTexto.select();
-                areaTexto.setSelectionRange(0, 99999);
-                navigator.clipboard.writeText(areaTexto.value).then(() => {
-                    alert("✅ Histórico copiado! Cole no sistema e edite os espaços em branco lá.");
-                }).catch(() => { alert("❌ Erro ao copiar. Tente selecionar o texto manualmente."); });
-            }, 50);
-        }
-
-        // --- EXPONDO FUNÇÕES AO ESCOPO GLOBAL DO HTML ---
+        // --- EXPONDO NO WINDOW ---
         window.showScreen = showScreen;
-        window.voltarCategoriasMbft = voltarCategoriasMbft;
-        window.abrirCategoriaMbft = abrirCategoriaMbft;
-        window.filtrarInfracoes = filtrarInfracoes;
-        window.buscarLocalReal = buscarLocalReal;
-        window.toggleBO = toggleBO;
-        window.copiarBO = copiarBO;
+        window.updateRodovias = updateRodovias;
+        window.buscarDados = buscarDados;
         window.abrirAdmin = abrirAdmin;
+        window.renderizarEdicaoCCOs = renderizarEdicaoCCOs;
         window.salvarCCO = salvarCCO;
+        window.renderizarEdicaoDPs = renderizarEdicaoDPs;
         window.salvarDP = salvarDP;
         window.adicionarItem = adicionarItem;
         window.excluirItem = excluirItem;
         window.salvarEdicaoBO = salvarEdicaoBO;
+        window.voltarCategoriasMbft = voltarCategoriasMbft;
+        window.abrirCategoriaMbft = abrirCategoriaMbft;
+        window.renderizarInfracoes = renderizarInfracoes;
+        window.filtrarInfracoes = filtrarInfracoes;
+        window.toggleBO = toggleBO;
+        window.copiarBO = copiarBO;
+        window.buscarLocalReal = buscarLocalReal;
+        window.renderizarListas = renderizarListas;
 
-        // Configurando Listeners do DOM
+        // INICIALIZAÇÃO
         window.onload = function() {
-            const pelotaoSelectElem = document.getElementById('pelotao');
-            const rodoviaSelectElem = document.getElementById('rodovia');
-            const kmInputElem = document.getElementById('km');
-            
-            if (pelotaoSelectElem) pelotaoSelectElem.addEventListener('change', updateRodovias);
-            if (rodoviaSelectElem) rodoviaSelectElem.addEventListener('change', buscarDados);
-            if (kmInputElem) kmInputElem.addEventListener('input', buscarDados);
-
             const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
-            populateSelect(pelotaoSelectElem, pelotoes, 'º Pelotão');
-            updateRodovias();
+            populateSelect(document.getElementById('pelotao'), pelotoes, 'º Pelotão');
+            window.updateRodovias();
         };
 
-        function renderizarListas() {
-            // Links
-            const divLinks = document.getElementById('lista-links');
-            if (divLinks) {
-                divLinks.innerHTML = '';
-                if (linksGlobais.length === 0) divLinks.innerHTML = '<p style="text-align:center; color:#666;">Nenhum link cadastrado.</p>';
-                linksGlobais.forEach((item, index) => {
-                    divLinks.innerHTML += `
-                        <div class="list-item">
-                            <span>${item.nome}</span>
-                            <a href="${item.url}" target="_blank">${item.url}</a>
-                            ${isAdminLogado ? `<span class="delete-btn" onclick="window.excluirItem('links', ${index})">🗑️ Excluir da Nuvem</span>` : ''}
-                        </div>
-                    `;
-                });
-            }
-            
-            // VTRs
-            const divVtr = document.getElementById('lista-vtr');
-            if (divVtr) {
-                divVtr.innerHTML = '';
-                if (vtrsGlobais.length === 0) divVtr.innerHTML = '<p style="text-align:center; color:#666;">Nenhuma VTR cadastrada.</p>';
-                vtrsGlobais.forEach((item, index) => {
-                    divVtr.innerHTML += `
-                        <div class="list-item">
-                            <span>${item.nome}</span>
-                            <a href="${item.url}" target="_blank">${item.url}</a>
-                            ${isAdminLogado ? `<span class="delete-btn" onclick="window.excluirItem('vtr', ${index})">🗑️ Excluir da Nuvem</span>` : ''}
-                        </div>
-                    `;
-                });
-            }
-
-            // BOs
-            const divBo = document.getElementById('lista-bo');
-            if (divBo) {
-                divBo.innerHTML = '';
-                if (bosGlobais.length === 0) divBo.innerHTML = '<p style="text-align:center; color:#666;">Nenhum modelo de BO cadastrado.</p>';
-                bosGlobais.forEach((item, index) => {
-                    divBo.innerHTML += `
-                        <div class="bo-card">
-                            <div class="bo-header">
-                                <strong>${item.titulo}</strong>
-                                <div class="bo-header-btns">
-                                    <button id="btn-visu-${index}" class="btn-visualizar" onclick="window.toggleBO(${index})">👁️ Ver</button>
-                                    <button class="btn-copiar" onclick="window.copiarBO(${index})">📋 Copiar</button>
-                                </div>
-                            </div>
-                            <div id="bo-conteudo-${index}" style="display: none;">
-                                <textarea id="texto-bo-${index}" class="bo-texto" ${isAdminLogado ? '' : 'readonly'}>${item.texto}</textarea>
-                                ${isAdminLogado ? `
-                                    <div class="bo-admin-actions">
-                                        <button class="btn-bo-edit" onclick="window.salvarEdicaoBO(${index})">💾 Salvar Edição Fixa</button>
-                                        <button class="btn-bo-del" onclick="window.excluirItem('bo', ${index})">🗑️ Excluir Modelo</button>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        // Firebase Listeners em Tempo Real
-        onValue(dbLinks, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { linksGlobais = data; } else { linksGlobais = linksPadrao; set(dbLinks, linksGlobais); }
-            renderizarListas();
+        // FIREBASE LISTENERS
+        onValue(dbLinks, (s) => { const d = s.val(); if(d) linksGlobais=d; else{ linksGlobais=linksPadrao; set(dbLinks, linksGlobais); } window.renderizarListas(); });
+        onValue(dbVtrs, (s) => { const d = s.val(); if(d) vtrsGlobais=d; else{ vtrsGlobais=vtrsPadrao; set(dbVtrs, vtrsGlobais); } window.renderizarListas(); });
+        onValue(dbBos, (s) => { const d = s.val(); if(d) bosGlobais=d; else{ bosGlobais=boPadrao; set(dbBos, bosGlobais); } window.renderizarListas(); });
+        onValue(dbDps, (s) => { 
+            const d = s.val(); if(d) dpsContatos=d; 
+            else { malhaRodoviaria.forEach(t=>{if(!dpsContatos[t.municipio]) dpsContatos[t.municipio]=t.dp_responsavel;}); set(dbDps, dpsContatos); }
+            if(isAdminLogado) window.renderizarEdicaoDPs(); window.buscarDados();
         });
-
-        onValue(dbVtrs, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { vtrsGlobais = data; } else { vtrsGlobais = vtrsPadrao; set(dbVtrs, vtrsGlobais); }
-            renderizarListas();
+        onValue(dbCcos, (s) => { 
+            const d = s.val(); if(d) ccoContatos=d; 
+            else { malhaRodoviaria.forEach(t=>{if(!ccoContatos[t.conservacao]) ccoContatos[t.conservacao]=ccosIniciais[t.conservacao]||"Não";}); set(dbCcos, ccoContatos); }
+            if(isAdminLogado) window.renderizarEdicaoCCOs(); window.buscarDados();
         });
-
-        onValue(dbBos, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { bosGlobais = data; } else { bosGlobais = boPadrao; set(dbBos, bosGlobais); }
-            renderizarListas();
-        });
-
-        onValue(dbDps, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { 
-                dpsContatos = data; 
-            } else { 
-                malhaRodoviaria.forEach(t => { if (!dpsContatos[t.municipio]) dpsContatos[t.municipio] = t.dp_responsavel; });
-                set(dbDps, dpsContatos);
-            }
-            if (isAdminLogado) renderizarEdicaoDPs();
-            buscarDados();
-        });
-
-        onValue(dbCcos, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { 
-                ccoContatos = data; 
-            } else { 
-                malhaRodoviaria.forEach(t => { if (!ccoContatos[t.conservacao]) ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
-                Object.keys(ccosIniciais).forEach(k => { if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k]; });
-                set(dbCcos, ccoContatos);
-            }
-            if (isAdminLogado) renderizarEdicaoCCOs();
-            buscarDados();
-        });
-
     </script>
 </body>
 </html>
