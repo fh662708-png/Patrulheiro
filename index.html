@@ -134,8 +134,6 @@
             </div>
         </div>
 
-        <!-- OUTRAS TELAS... (Ocultas inicialmente) -->
-        
         <div id="gps" class="content hidden">
             <button class="btn-add" onclick="window.buscarLocalReal()" style="padding: 15px; font-size: 16px;">📍 Buscar Minha Localização Atual</button>
             <div id="painel-resultado-geo" class="result-card hidden" style="margin-top: 15px;">
@@ -296,7 +294,7 @@
         let abaAtivaMbft = '';
         let meuMapa = null;
 
-        // DADOS TELEFONES BASE (Global para ser acessado por ambos os scripts)
+        // DADOS TELEFONES BASE (Global)
         window.dpsContatos = {};
         window.ccoContatos = {};
         
@@ -542,6 +540,15 @@
             {"pelotao": "3", "tipo": "SPM", "numero": "326 D", "km_ini": 339.3, "km_fim": 341.2, "municipio": "Jaboticabal", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"},
             {"pelotao": "3", "tipo": "SPM", "numero": "326 E", "km_ini": 299.82, "km_fim": 300.4, "municipio": "Matão", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"}
         ];
+
+        // INICIALIZAÇÃO SEGURA
+        malhaRodoviaria.forEach(t => { if (!window.dpsContatos[t.municipio]) window.dpsContatos[t.municipio] = t.dp_responsavel; });
+        malhaRodoviaria.forEach(t => { if (!window.ccoContatos[t.conservacao]) window.ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
+        Object.keys(ccosIniciais).forEach(k => { if(!window.ccoContatos[k]) window.ccoContatos[k] = ccosIniciais[k]; });
+
+        window.linksGlobaisVar = linksPadrao;
+        window.vtrsGlobaisVar = vtrsPadrao;
+        window.bosGlobaisVar = boPadrao;
 
         // --- FUNÇÕES DE INTERFACE ---
         function showScreen(screenId) {
@@ -797,10 +804,6 @@
         window.copiarBO = copiarBO;
         window.buscarLocalReal = buscarLocalReal;
         window.renderizarListas = renderizarListas;
-
-        window.linksGlobaisVar = linksPadrao;
-        window.vtrsGlobaisVar = vtrsPadrao;
-        window.bosGlobaisVar = boPadrao;
 
         // INICIALIZAÇÃO ÚNICA DA TELA
         window.onload = function() {
