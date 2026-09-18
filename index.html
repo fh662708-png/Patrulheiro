@@ -288,10 +288,10 @@
         </div>
     </div>
 
-    <!-- SCRIPT TIPO MODULE COM FIREBASE V12 -->
+    <!-- SCRIPT TIPO MODULE COM FIREBASE V10 -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Configuração do Firebase
         const firebaseConfig = {
@@ -312,7 +312,6 @@
         let abaAtivaMbft = '';
         let meuMapa = null;
 
-        // Variaveis de Dados na Nuvem
         let linksGlobais = [];
         let vtrsGlobais = [];
         let bosGlobais = [];
@@ -596,60 +595,111 @@
             {"pelotao": "3", "tipo": "SPM", "numero": "326 E", "km_ini": 299.82, "km_fim": 300.4, "municipio": "Matão", "nome_rodovia": "SEM DENOMINAÇÃO", "conservacao": "Econoroeste", "dp_responsavel": "Contato não fornecido na imagem"}
         ];
 
-        // Escutadores em Tempo Real da Nuvem (Atualiza a tela na hora)
-        onValue(dbLinks, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { linksGlobais = data; } else { linksGlobais = linksPadrao; set(dbLinks, linksGlobais); }
-            renderizarListas();
-        });
-
-        onValue(dbVtrs, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { vtrsGlobais = data; } else { vtrsGlobais = vtrsPadrao; set(dbVtrs, vtrsGlobais); }
-            renderizarListas();
-        });
-
-        onValue(dbBos, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { bosGlobais = data; } else { bosGlobais = boPadrao; set(dbBos, bosGlobais); }
-            renderizarListas();
-        });
-
-        onValue(dbDps, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { 
-                dpsContatos = data; 
-            } else { 
-                malhaRodoviaria.forEach(t => { if (!dpsContatos[t.municipio]) dpsContatos[t.municipio] = t.dp_responsavel; });
-                set(dbDps, dpsContatos);
+        // --- FUNÇÕES DE INTERFACE PARA FICAREM GLOBAIS ---
+        function showScreen(screenId) {
+            const telas = ['home', 'loc', 'gps', 'mbft', 'juridico', 'links', 'vtr', 'bo'];
+            telas.forEach(t => {
+                const elemento = document.getElementById(t);
+                if (elemento) {
+                    elemento.classList.add('hidden');
+                }
+            });
+            const telaAtiva = document.getElementById(screenId);
+            if (telaAtiva) {
+                telaAtiva.classList.remove('hidden');
             }
-            if (isAdminLogado) renderizarEdicaoDPs();
-            buscarDados();
-        });
-
-        onValue(dbCcos, (snapshot) => {
-            const data = snapshot.val();
-            if (data) { 
-                ccoContatos = data; 
-            } else { 
-                malhaRodoviaria.forEach(t => { if (!ccoContatos[t.conservacao]) ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
-                Object.keys(ccosIniciais).forEach(k => { if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k]; });
-                set(dbCcos, ccoContatos);
+            const titulo = document.getElementById('tela-titulo');
+            const btnVoltar = document.getElementById('btn-voltar');
+            
+            if (screenId === 'home') {
+                titulo.innerText = "🚓 PATRULHEIRO";
+                btnVoltar.style.display = 'none';
+            } else {
+                btnVoltar.style.display = 'block';
+                if (screenId === 'loc') titulo.innerText = "📍 Localização/Info";
+                if (screenId === 'gps') titulo.innerText = "🌍 Onde Estou";
+                if (screenId === 'juridico') titulo.innerText = "⚖️ Embasamento";
+                if (screenId === 'bo') { titulo.innerText = "📝 Exemplos BO"; renderizarListas(); }
+                if (screenId === 'mbft') {
+                    titulo.innerText = "📖 MBFT (Infrações)";
+                    voltarCategoriasMbft(); 
+                }
+                if (screenId === 'links') { titulo.innerText = "🔗 Links Úteis"; renderizarListas(); }
+                if (screenId === 'vtr') { titulo.innerText = "🚓 Links VTR"; renderizarListas(); }
             }
-            if (isAdminLogado) renderizarEdicaoCCOs();
+        }
+
+        function populateSelect(selectElement, options, suffix = '') {
+            if (!selectElement) return;
+            selectElement.innerHTML = '';
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt;
+                option.textContent = opt + suffix;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function updateRodovias() {
+            const pelotaoSelect = document.getElementById('pelotao');
+            const rodoviaSelect = document.getElementById('rodovia');
+            if (!pelotaoSelect || !rodoviaSelect) return;
+            const pelotao = pelotaoSelect.value;
+            const rodoviasDisponiveis = [...new Set(
+                malhaRodoviaria.filter(item => item.pelotao === pelotao).map(item => item.tipo + ' ' + item.numero)
+            )].sort();
+            populateSelect(rodoviaSelect, rodoviasDisponiveis);
             buscarDados();
-        });
+        }
 
-        // --- FUNÇÕES "WINDOW" PARA O HTML CONSEGUIR CHAMAR ---
-        window.showScreen = showScreen;
-        window.voltarCategoriasMbft = voltarCategoriasMbft;
-        window.abrirCategoriaMbft = abrirCategoriaMbft;
-        window.filtrarInfracoes = filtrarInfracoes;
-        window.buscarLocalReal = buscarLocalReal;
-        window.toggleBO = toggleBO;
-        window.copiarBO = copiarBO;
+        function buscarDados() {
+            const pelotaoSelect = document.getElementById('pelotao');
+            const rodoviaSelect = document.getElementById('rodovia');
+            const kmInput = document.getElementById('km');
+            const resultadoDiv = document.getElementById('resultado');
+            
+            if (!pelotaoSelect || !rodoviaSelect || !kmInput || !resultadoDiv) return;
+            
+            const pelotao = pelotaoSelect.value;
+            const rodoviaSelecionada = rodoviaSelect.value;
+            const kmVal = kmInput.value.replace(',', '.');
+            const km = parseFloat(kmVal);
 
-        window.abrirAdmin = function(tipo) {
+            if (isNaN(km) || kmVal.trim() === '') {
+                resultadoDiv.classList.add('hidden');
+                return;
+            }
+
+            const trechos = malhaRodoviaria.filter(t => 
+                t.pelotao === pelotao && 
+                (t.tipo + ' ' + t.numero) === rodoviaSelecionada && 
+                km >= t.km_ini && 
+                km <= t.km_fim
+            );
+
+            resultadoDiv.classList.remove('hidden');
+
+            if (trechos.length > 0) {
+                const trecho = trechos[0];
+                const dpTelefone = dpsContatos[trecho.municipio] || trecho.dp_responsavel;
+                const ccoTelefone = ccoContatos[trecho.conservacao] || "Não cadastrado";
+                
+                resultadoDiv.style.borderLeftColor = "#28a745";
+                resultadoDiv.innerHTML = `
+                    <div class="result-item"><span>🛣️ Rodovia:</span> ${trecho.nome_rodovia}</div>
+                    <div class="result-item"><span>📍 Município:</span> ${trecho.municipio}</div>
+                    <div class="result-item"><span>🚧 Conservação:</span> ${trecho.conservacao}</div>
+                    <div class="result-item" style="color:#0056b3;"><span>📞 CCO (${trecho.conservacao}):</span><br> ${ccoTelefone}</div>
+                    <hr style="border: 0.5px solid #ccc; margin: 15px 0;">
+                    <div class="result-item" style="color:#d9534f;"><span>🚔 DP Responsável (${trecho.municipio}):</span><br> ${dpTelefone}</div>
+                `;
+            } else {
+                resultadoDiv.style.borderLeftColor = "#d9534f";
+                resultadoDiv.innerHTML = `<strong>❌ Trecho não localizado.</strong><br>O KM ${km} não pertence à ${rodoviaSelecionada} neste Pelotão.`;
+            }
+        }
+
+        function abrirAdmin(tipo) {
             if (!isAdminLogado) {
                 const senha = prompt("Digite a senha do Administrador:");
                 if (senha === "3BPRv") {
@@ -669,23 +719,55 @@
                 renderizarEdicaoCCOs();
             }
             renderizarListas();
-        };
+        }
 
-        window.salvarCCO = function(conservacao, index) {
+        function renderizarEdicaoCCOs() {
+            const div = document.getElementById('lista-editar-ccos');
+            div.innerHTML = '';
+            const conservacoes = Object.keys(ccoContatos).sort();
+            conservacoes.forEach((c, index) => {
+                div.innerHTML += `
+                    <div class="form-group" style="margin-bottom: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                        <label style="color:#0056b3;">📞 ${c}</label>
+                        <input type="text" id="cco_input_${index}" value="${ccoContatos[c]}" style="margin-bottom: 5px; font-size: 14px;">
+                        <button class="btn-add" style="padding: 5px; background: #007bff;" onclick="window.salvarCCO('${c}', ${index})">💾 Salvar CCO</button>
+                    </div>
+                `;
+            });
+        }
+
+        function salvarCCO(conservacao, index) {
             const novoTel = document.getElementById(`cco_input_${index}`).value;
             ccoContatos[conservacao] = novoTel;
             set(dbCcos, ccoContatos);
             alert(`CCO de ${conservacao} atualizado na nuvem!`);
-        };
+            buscarDados();
+        }
 
-        window.salvarDP = function(municipio, index) {
+        function renderizarEdicaoDPs() {
+            const div = document.getElementById('lista-editar-dps');
+            div.innerHTML = '';
+            const municipios = Object.keys(dpsContatos).sort();
+            municipios.forEach((m, index) => {
+                div.innerHTML += `
+                    <div class="form-group" style="margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                        <label>🚔 ${m}</label>
+                        <input type="text" id="dp_input_${index}" value="${dpsContatos[m]}" style="margin-bottom: 5px; font-size: 14px;">
+                        <button class="btn-add" style="padding: 5px; background: #28a745;" onclick="window.salvarDP('${m}', ${index})">💾 Salvar DP</button>
+                    </div>
+                `;
+            });
+        }
+
+        function salvarDP(municipio, index) {
             const novoTel = document.getElementById(`dp_input_${index}`).value;
             dpsContatos[municipio] = novoTel;
             set(dbDps, dpsContatos);
             alert(`Telefone de ${municipio} atualizado na nuvem!`);
-        };
+            buscarDados();
+        }
 
-        window.adicionarItem = function(tipo) {
+        function adicionarItem(tipo) {
             if (tipo === 'links') {
                 const nome = document.getElementById('link-nome').value.trim();
                 const url = document.getElementById('link-url').value.trim();
@@ -711,9 +793,9 @@
                 document.getElementById('bo-titulo').value = '';
                 document.getElementById('bo-texto-add').value = '';
             }
-        };
+        }
 
-        window.excluirItem = function(tipo, index) {
+        function excluirItem(tipo, index) {
             if (confirm("Tem certeza que deseja excluir este item para todo o pelotão?")) {
                 if(tipo === 'links') {
                     linksGlobais.splice(index, 1);
@@ -726,13 +808,211 @@
                     set(dbBos, bosGlobais);
                 }
             }
-        };
+        }
 
-        window.salvarEdicaoBO = function(index) {
+        function salvarEdicaoBO(index) {
             const novoTexto = document.getElementById('texto-bo-' + index).value;
             bosGlobais[index].texto = novoTexto;
             set(dbBos, bosGlobais);
             alert("💾 Alteração salva na nuvem com sucesso!");
+        }
+
+        function voltarCategoriasMbft() {
+            document.getElementById('mbft-categorias').classList.remove('hidden');
+            document.getElementById('mbft-conteudo').classList.add('hidden');
+        }
+
+        function abrirCategoriaMbft(categoria) {
+            abaAtivaMbft = categoria;
+            document.getElementById('mbft-categorias').classList.add('hidden');
+            document.getElementById('mbft-conteudo').classList.remove('hidden');
+            
+            const aviso = document.getElementById('mbft-aviso');
+            const tituloCat = document.getElementById('mbft-titulo-cat');
+            const buscaInput = document.getElementById('busca-infra');
+            if (buscaInput) buscaInput.value = '';
+
+            if (categoria === 'top') {
+                tituloCat.innerHTML = "⭐ As 15+ Frequentes";
+                aviso.innerText = "As infrações mais recorrentes no policiamento rodoviário.";
+            } else if (categoria === 'norm') {
+                tituloCat.innerHTML = "🚗 Veículo de Passeio";
+                aviso.innerText = "Infrações comuns em fiscalização de carros.";
+            } else if (categoria === 'moto') {
+                tituloCat.innerHTML = "🏍️ Motocicleta";
+                aviso.innerText = "Infrações focadas no uso de motos e capacetes.";
+            } else if (categoria === 'cam') {
+                tituloCat.innerHTML = "🚛 Caminhão / Carga";
+                aviso.innerText = "Focado em dimensões, peso e conservação.";
+            } else if (categoria === 'pesq') {
+                tituloCat.innerHTML = "🔍 Pesquisa Livre";
+                aviso.innerText = "Buscando pelo artigo, tema ou descrição em toda a base.";
+            }
+            renderizarInfracoes();
+        }
+
+        function renderizarInfracoes(termo) {
+            if (typeof termo === 'undefined') termo = '';
+            const div = document.getElementById('lista-infracoes');
+            if (!div) return; 
+            div.innerHTML = '';
+            
+            let listaBase = [];
+            if (abaAtivaMbft === 'top') {
+                listaBase = bancoInfracoesTop15;
+            } else if (abaAtivaMbft === 'norm') {
+                listaBase = bancoInfracoesNormal;
+            } else if (abaAtivaMbft === 'moto') {
+                listaBase = bancoInfracoesMoto;
+            } else if (abaAtivaMbft === 'cam') {
+                listaBase = bancoInfracoesCaminhao;
+            } else if (abaAtivaMbft === 'pesq') {
+                listaBase = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao, ...bancoInfracoesGeral];
+                listaBase = listaBase.filter((v,i,a) => a.findIndex(v2 => (v2.artigo === v.artigo)) === i);
+            }
+            
+            let listaFiltrada = listaBase;
+            if (termo !== '') {
+                const t = termo.toLowerCase();
+                listaFiltrada = listaBase.filter(i => 
+                    i.artigo.toLowerCase().includes(t) || 
+                    i.tema.toLowerCase().includes(t) ||
+                    i.descricao.toLowerCase().includes(t) ||
+                    i.autuar.toLowerCase().includes(t)
+                );
+            }
+            
+            if (listaFiltrada.length === 0) {
+                div.innerHTML = '<p style="text-align:center; color:red; margin-top:20px;">Nenhuma infração encontrada na busca.</p>';
+                return;
+            }
+
+            let categoriaAtual = "";
+            listaFiltrada.forEach(infra => {
+                if (abaAtivaMbft === 'top' && infra.categoria && infra.categoria !== categoriaAtual) {
+                    categoriaAtual = infra.categoria;
+                    div.innerHTML += `<div class="categoria-header">${categoriaAtual}</div>`;
+                }
+
+                div.innerHTML += `
+                    <div class="infra-card">
+                        <h4 class="infra-title">${infra.artigo} - ${infra.tema}</h4>
+                        <p class="infra-desc">${infra.descricao}</p>
+                        <div class="infra-box box-autuar"><strong>✅ QUANDO AUTUAR:</strong> ${infra.autuar}</div>
+                        <div class="infra-box box-nao-autuar"><strong>❌ QUANDO NÃO AUTUAR:</strong> ${infra.naoAutuar}</div>
+                        <div class="infra-medida">⚠️ Ação/Medida: ${infra.medida}</div>
+                        <div class="infra-rd">📄 Faz RD (Recolha)? <br> ${infra.rd}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function filtrarInfracoes() {
+            const termo = document.getElementById('busca-infra').value;
+            renderizarInfracoes(termo);
+        }
+
+        function buscarLocalReal() {
+            const painelGeo = document.getElementById('painel-resultado-geo');
+            painelGeo.classList.remove('hidden');
+            painelGeo.innerHTML = "Buscando satélites... Aguarde (pode levar até 10 seg) 🛰️";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sucessoGeo, erroGeo, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            } else {
+                painelGeo.innerHTML = "❌ Seu navegador não suporta GPS.";
+            }
+        }
+
+        function sucessoGeo(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const painelGeo = document.getElementById('painel-resultado-geo');
+            const divMapa = document.getElementById('mapa');
+            painelGeo.innerHTML = "Lendo coordenadas e carregando mapa livre... 🌍";
+            divMapa.style.display = 'block';
+
+            if (meuMapa !== null) { meuMapa.remove(); }
+            meuMapa = L.map('mapa').setView([lat, lng], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(meuMapa);
+            L.marker([lat, lng]).addTo(meuMapa).bindPopup('Você está aqui!').openPopup();
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        painelGeo.innerHTML = `<strong>Você está em:</strong><br><br> <span style="color:#2a3f54; font-size:16px;">${data.display_name}</span>`;
+                        if(data.address && data.address.road) painelGeo.innerHTML += `<br><br><em>Via principal identificada: <b style="color:#28a745;">${data.address.road}</b></em>`;
+                    } else {
+                        painelGeo.innerHTML = "Endereço não encontrado na base aberta.";
+                    }
+                }).catch(() => { painelGeo.innerHTML = "Erro ao conectar com o serviço de endereços."; });
+        }
+
+        function erroGeo(err) {
+            const painelGeo = document.getElementById('painel-resultado-geo');
+            painelGeo.classList.remove('hidden');
+            let motivo = err.message;
+            if (err.code === 1) motivo = "Você não deu permissão de localização no navegador.";
+            if (err.code === 2) motivo = "O navegador não conseguiu acessar a antena do seu GPS.";
+            if (err.code === 3) motivo = "Tempo esgotado! O sinal do GPS está muito fraco.";
+            painelGeo.innerHTML = `<strong>❌ Falha no GPS:</strong> ${motivo}<br><br><em>Dica: Ligue a "Localização" do celular.</em>`;
+        }
+
+        function toggleBO(index) {
+            const conteudo = document.getElementById('bo-conteudo-' + index);
+            const btn = document.getElementById('btn-visu-' + index);
+            if (conteudo.style.display === 'none' || conteudo.style.display === '') {
+                conteudo.style.display = 'block';
+                btn.innerHTML = '➖ Ocultar';
+                btn.style.background = '#6c757d';
+            } else {
+                conteudo.style.display = 'none';
+                btn.innerHTML = '👁️ Ver';
+                btn.style.background = '#17a2b8';
+            }
+        }
+
+        function copiarBO(index) {
+            const areaTexto = document.getElementById('texto-bo-' + index);
+            const conteudo = document.getElementById('bo-conteudo-' + index);
+            if (conteudo.style.display === 'none' || conteudo.style.display === '') toggleBO(index);
+            setTimeout(() => {
+                areaTexto.select();
+                areaTexto.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(areaTexto.value).then(() => {
+                    alert("✅ Histórico copiado! Cole no sistema e edite os espaços em branco lá.");
+                }).catch(() => { alert("❌ Erro ao copiar. Tente selecionar o texto manualmente."); });
+            }, 50);
+        }
+
+        // --- EXPONDO FUNÇÕES AO ESCOPO GLOBAL DO HTML ---
+        window.showScreen = showScreen;
+        window.voltarCategoriasMbft = voltarCategoriasMbft;
+        window.abrirCategoriaMbft = abrirCategoriaMbft;
+        window.filtrarInfracoes = filtrarInfracoes;
+        window.buscarLocalReal = buscarLocalReal;
+        window.toggleBO = toggleBO;
+        window.copiarBO = copiarBO;
+        window.abrirAdmin = abrirAdmin;
+        window.salvarCCO = salvarCCO;
+        window.salvarDP = salvarDP;
+        window.adicionarItem = adicionarItem;
+        window.excluirItem = excluirItem;
+        window.salvarEdicaoBO = salvarEdicaoBO;
+
+        // Configurando Listeners do DOM
+        window.onload = function() {
+            const pelotaoSelectElem = document.getElementById('pelotao');
+            const rodoviaSelectElem = document.getElementById('rodovia');
+            const kmInputElem = document.getElementById('km');
+            
+            if (pelotaoSelectElem) pelotaoSelectElem.addEventListener('change', updateRodovias);
+            if (rodoviaSelectElem) rodoviaSelectElem.addEventListener('change', buscarDados);
+            if (kmInputElem) kmInputElem.addEventListener('input', buscarDados);
+
+            const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
+            populateSelect(pelotaoSelectElem, pelotoes, 'º Pelotão');
+            updateRodovias();
         };
 
         function renderizarListas() {
@@ -798,15 +1078,50 @@
             }
         }
 
-        window.onload = function() {
-            try {
-                const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
-                populateSelect(pelotaoSelect, pelotoes, 'º Pelotão');
-                updateRodovias();
-            } catch(err) {
-                console.error("Erro na inicialização: " + err);
+        // Firebase Listeners em Tempo Real
+        onValue(dbLinks, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { linksGlobais = data; } else { linksGlobais = linksPadrao; set(dbLinks, linksGlobais); }
+            renderizarListas();
+        });
+
+        onValue(dbVtrs, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { vtrsGlobais = data; } else { vtrsGlobais = vtrsPadrao; set(dbVtrs, vtrsGlobais); }
+            renderizarListas();
+        });
+
+        onValue(dbBos, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { bosGlobais = data; } else { bosGlobais = boPadrao; set(dbBos, bosGlobais); }
+            renderizarListas();
+        });
+
+        onValue(dbDps, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { 
+                dpsContatos = data; 
+            } else { 
+                malhaRodoviaria.forEach(t => { if (!dpsContatos[t.municipio]) dpsContatos[t.municipio] = t.dp_responsavel; });
+                set(dbDps, dpsContatos);
             }
-        };
+            if (isAdminLogado) renderizarEdicaoDPs();
+            buscarDados();
+        });
+
+        onValue(dbCcos, (snapshot) => {
+            const data = snapshot.val();
+            if (data) { 
+                ccoContatos = data; 
+            } else { 
+                malhaRodoviaria.forEach(t => { if (!ccoContatos[t.conservacao]) ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
+                Object.keys(ccosIniciais).forEach(k => { if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k]; });
+                set(dbCcos, ccoContatos);
+            }
+            if (isAdminLogado) renderizarEdicaoCCOs();
+            buscarDados();
+        });
+
     </script>
 </body>
 </html>
