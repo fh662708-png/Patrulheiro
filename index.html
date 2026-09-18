@@ -88,6 +88,12 @@
     </style>
 </head>
 <body>
+    <script>
+        window.onerror = function(msg, url, line) {
+            alert("❌ Erro no código! O celular cortou algo na linha " + line + ". Mensagem: " + msg);
+        };
+    </script>
+
     <div class="container">
         <div class="header">
             <button id="btn-voltar" class="btn-voltar-header" onclick="window.showScreen('home')">⬅️</button>
@@ -327,16 +333,31 @@
         const vtrsPadrao = [
             { nome: "R-03112", url: "https://docs.google.com/forms/d/e/1FAIpQLSf1onwl8DlrOOJxNHn9u8VYRMjG8aynrbZYhIH56gjBc6b-7g/viewform" },
             { nome: "R-03114", url: "https://docs.google.com/forms/d/e/1FAIpQLScAUkGD5y66JYBbpym26C0jChRnB6HplJ6wOtQNoWsXWkXwEw/viewform" },
-            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" }
+            { nome: "R-03119", url: "https://docs.google.com/forms/d/e/1FAIpQLSe2vIHYcHLce34o1w9nfN7WWOXd7CMAxLRaCqQSDR3iqOHe1g/viewform" },
+            { nome: "R-03121", url: "https://docs.google.com/forms/d/e/1FAIpQLScfi9K0Zfug4LQ9nNZ6TcyPOYDUYXZywppOfz69XotTbeKtGA/viewform" },
+            { nome: "R-03122", url: "https://docs.google.com/forms/d/e/1FAIpQLScDyyktD5p4tGBBU12gNbroXOpfW8izn-2pVxOIcm3S71HUkg/viewform" },
+            { nome: "R-03127", url: "https://docs.google.com/forms/d/e/1FAIpQLSdTROlipmwP0S9BeWm0NYa17XtcQyJJmLscVvCmtMoyWwqkLw/viewform" },
+            { nome: "R-03115", url: "https://docs.google.com/forms/d/e/1FAIpQLSdBLeIg9dZ7VXZ154l5sKdyjxMA-uScMphH8moORFgenKx46w/viewform" }
         ];
 
         const boPadrao = [
             { titulo: "Alcoolemia (Bafômetro Positivo)", texto: "Durante Operação ________ pela SP-____, KM ____, foi abordado o veículo ________, placas ________, conduzido pelo Sr(a) ________. Durante a fiscalização, notou-se que o condutor apresentava sinais de alteração da capacidade psicomotora (hálito etílico e olhos vermelhos). Convidado a realizar o teste do etilômetro (Aparelho nº ____), obteve-se a medição de ____ mg/L de álcool por litro de ar alveolar. Diante dos fatos, foram lavrados os AITs pertinentes, sendo o veículo liberado para o condutor habilitado ________, CNH ________. Foi confeccionado o presente BOPM para registro." },
             { titulo: "Sinistro de Trânsito sem Vítima", texto: "Acionados pelo COPOM/CCO para atendimento de sinistro de trânsito sem vítimas. Pelo local, a equipe deparou-se com o veículo ________ (V01), placas ________, imobilizado no acostamento/faixa de rolamento. Segundo relato do condutor, Sr. ________, transitava pela rodovia no sentido ________, quando no KM ____ perdeu o controle da direção e chocou-se contra a defensa metálica. O veículo resultou em danos de ______ monta e foi removido pelo guincho da concessionária/particular. Condutor submetido ao teste do etilômetro com resultado 0,00 mg/L." },
-            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." }
+            { titulo: "Recusa ao Teste de Etilômetro", texto: "Durante patrulhamento/bloqueio pela SP-____, KM ____, a equipe abordou o veículo ________, placas ________, conduzido pelo Sr(a) ________. No decorrer da fiscalização, o condutor foi devidamente orientado e convidado a realizar o teste de alcoolemia, momento em que recusou-se expressamente a soprar o aparelho etilômetro (Aparelho nº ____). Sendo assim, diante da recusa, foi lavrado o AIT sob o Art. 165-A do CTB. A CNH do condutor foi recolhida mediante recibo e o veículo foi entregue à pessoa habilitada apresentada no local." },
+            { titulo: "Apreensão de Veículo (Licenciamento)", texto: "Durante fiscalização de rotina pela SP-____, KM ____, foi dado sinal de parada ao veículo ________, placas ________. Em pesquisa via COPOM/Tablet, confirmou-se que o veículo encontrava-se com o licenciamento em atraso referente ao exercício de _____. Foi elaborado o respectivo auto de infração (Art. 230, V do CTB) e recolhido o CRLV (se houver físico). Como medida administrativa, o veículo foi recolhido ao pátio ________ através do guincho DER/Concessionária." }
         ];
 
-        const ccosIniciais = { "DER 14": "17 997823152", "DER 4": "16 997978447", "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407", "Econoroeste": "11 918499137" };
+        const ccosIniciais = {
+            "DER 14": "17 997823152",
+            "DER 4": "16 997978447",
+            "Entrevias": "2º Pel: 16 996454252 | 3º Pel: 16 996224407",
+            "Econoroeste": "11 918499137",
+            "ECOVIAS": "11 918499137",
+            "ViaPaulista": "Não cadastrado",
+            "Intervias": "Não cadastrado",
+            "EIXOSP": "Não cadastrado",
+            "Prefeitura": "Não cadastrado"
+        };
 
         const malhaRodoviaria = [
             {"pelotao": "1", "tipo": "SP", "numero": "215", "km_ini": 131.5, "km_fim": 146.7, "municipio": "São Carlos", "nome_rodovia": "Doutor Paulo Lauro", "conservacao": "Intervias", "dp_responsavel": "Contato não fornecido na imagem"},
@@ -577,6 +598,51 @@
         malhaRodoviaria.forEach(t => { if (!ccoContatos[t.conservacao]) ccoContatos[t.conservacao] = ccosIniciais[t.conservacao] || "Não cadastrado"; });
         Object.keys(ccosIniciais).forEach(k => { if(!ccoContatos[k]) ccoContatos[k] = ccosIniciais[k]; });
 
+        // --- BANCO DE DADOS DE INFRAÇÕES (RESTUARADO 100%) ---
+        const bancoInfracoesTop15 = [
+            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 203, V", tema: "Ultrapassagem em Faixa Contínua", descricao: "Ultrapassar pela contramão onde houver marcação viária longitudinal contínua amarela.", autuar: "Veículo executando a ultrapassagem invadindo a contramão.", naoAutuar: "Veículo apenas transita com as rodas sobre a linha (Art. 185).", medida: "Autuação (Gravíssima x5).", rd: "NÃO" },
+            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 193", tema: "Transitar pelo Acostamento", descricao: "Transitar com o veículo em acostamentos.", autuar: "Veículo utilizando o acostamento como faixa de rolamento (comum em congestionamento).", naoAutuar: "Acesso a lotes lindeiros ou imobilização de emergência.", medida: "Autuação (Gravíssima x3).", rd: "NÃO" },
+            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 252, VI / P. Único", tema: "Uso do Celular", descricao: "Dirigir segurando ou manuseando telefone celular.", autuar: "Condutor digitando/lendo no colo (manuseando) ou com aparelho na orelha (segurando).", naoAutuar: "Celular fixado no painel usado como GPS, sem o condutor manusear.", medida: "Autuação (Gravíssima).", rd: "NÃO" },
+            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 167", tema: "Sem Cinto de Segurança", descricao: "Deixar o condutor ou passageiro de usar o cinto.", autuar: "Constatado condutor ou passageiros (inclusive no banco traseiro) sem cinto com veículo em movimento.", naoAutuar: "Veículo manobrando lentamente em posto de combustível/estacionamento.", medida: "Autuação (Grave). Se for abordado: reter até colocação.", rd: "NÃO" },
+            { categoria: "🏃 Em Movimento (Não exige abordagem)", artigo: "Art. 250, I, 'b'", tema: "Farol Apagado (Luz Baixa)", descricao: "Deixar de manter a luz baixa de dia em rodovia de pista simples.", autuar: "Veículo sem DRL de fábrica, com farol apagado, transitando fora do perímetro urbano.", naoAutuar: "Pista dupla, veículo com DRL ligado de fábrica, ou dentro de trecho urbano.", medida: "Autuação (Média).", rd: "NÃO" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 165 / 165-A", tema: "Embriaguez / Recusa Bafômetro", descricao: "Dirigir sob influência de álcool ou recusar-se ao teste.", autuar: "Bafômetro positivo (≥ 0,05 mg/L) ou recusa expressa ao teste.", naoAutuar: "Resultado até 0,04 mg/L (margem de erro do aparelho).", medida: "Retenção do veículo, Recolhimento da CNH. Condução se ≥ 0,34 mg/L.", rd: "SIM (Da CNH)" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, V", tema: "Licenciamento Atrasado", descricao: "Conduzir veículo não registrado ou não licenciado.", autuar: "CRLV vencido conforme calendário do DETRAN, sem comprovante de pagamento válido.", naoAutuar: "Motorista pagou recentemente e apresenta comprovante bancário válido.", medida: "Remoção ao pátio.", rd: "NÃO (Veículo recolhido)" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, XVIII", tema: "Pneu Careca", descricao: "Conduzir o veículo em mau estado de conservação.", autuar: "Banda de rodagem lisa com sulcos abaixo de 1.6mm (indicador TWI tocando o asfalto).", naoAutuar: "Desgaste apenas nas bordas, mantendo o centro e TWI íntegros.", medida: "Retenção para troca da roda/pneu.", rd: "SIM (Do CRLV, caso não consiga sanar no local)" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 162, I", tema: "Dirigir sem CNH", descricao: "Dirigir veículo sem possuir CNH, PPD ou ACC.", autuar: "Pesquisa via sistema atesta que cidadão não possui habilitação.", naoAutuar: "Condutor habilitado mas sem documento no momento (sistema comprova).", medida: "Retenção do veículo até condutor habilitado. Autuar tbm proprietário.", rd: "NÃO" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 162, V", tema: "CNH Vencida", descricao: "Dirigir com CNH vencida há mais de 30 dias.", autuar: "CNH passou da validade mais a tolerância de 30 dias.", naoAutuar: "CNH vencida há menos de 30 dias (dentro da tolerância legal).", medida: "Retenção do veículo e recolhimento do documento.", rd: "SIM (Da CNH)" },
+            { categoria: "🛑 Com Abordagem (Fiscalização Direta)", artigo: "Art. 230, VII", tema: "Característica Alterada", descricao: "Conduzir veículo com cor ou característica alterada.", autuar: "Suspensão rebaixada não legalizada, escape furado (moto) ou sem paralama.", naoAutuar: "Modificação devidamente constada no CSV do documento.", medida: "Retenção para regularização.", rd: "SIM (Do CRLV)" }
+        ];
+
+        const bancoInfracoesNormal = [
+            { artigo: "Art. 230, V", tema: "Licenciamento Atrasado", descricao: "Conduzir o veículo que não esteja registrado e devidamente licenciado.", autuar: "Consulta via sistema confirma CRLV do ano anterior (fora do calendário).", naoAutuar: "Motorista pagou a taxa há poucos dias e apresenta comprovante.", medida: "Remoção ao pátio.", rd: "NÃO" },
+            { artigo: "Art. 167", tema: "Cinto de Segurança", descricao: "Deixar o condutor ou passageiro de usar o cinto de segurança.", autuar: "Veículo em circulação sem cinto.", naoAutuar: "Veículo manobrando lentamente em posto.", medida: "Retenção do veículo até colocação.", rd: "NÃO" },
+            { artigo: "Art. 168", tema: "Transporte Irregular de Crianças", descricao: "Transportar crianças sem normas de segurança (cadeirinha).", autuar: "Criança menor de 10 anos ou < 1,45m sem dispositivo adequado.", naoAutuar: "Criança maior de 10 anos utilizando cinto normal.", medida: "Retenção até apresentação de cadeirinha ou transbordo.", rd: "NÃO" },
+            { artigo: "Art. 252, V / VI", tema: "Uso do Celular", descricao: "Dirigir segurando ou manuseando telefone celular.", autuar: "Manuseando ou segurando no ouvido.", naoAutuar: "Celular fixado no suporte como GPS.", medida: "Autuação gravíssima.", rd: "NÃO" },
+            { artigo: "Art. 230, XVIII", tema: "Pneu Careca", descricao: "Conduzir o veículo em mau estado de conservação.", autuar: "Banda de rodagem lisa (TWI no asfalto).", naoAutuar: "Desgaste apenas nas bordas.", medida: "Retenção para troca.", rd: "SIM, do CRLV (se não trocar no local)" }
+        ];
+
+        const bancoInfracoesMoto = [
+            { artigo: "Art. 244, I e II", tema: "Sem Capacete", descricao: "Conduzir ou transportar passageiro sem capacete.", autuar: "Capacete fora da cabeça ou sem estar afivelado.", naoAutuar: "Afivelado corretamente, mas com viseira levantada (outro artigo).", medida: "Retenção e recolhimento CNH.", rd: "SIM, da CNH" },
+            { artigo: "Art. 244, X", tema: "Viseira Levantada / Sem Óculos", descricao: "Conduzir com viseira levantada ou sem óculos.", autuar: "Veículo em movimento com viseira levantada.", naoAutuar: "Moto imobilizada no semáforo.", medida: "Retenção para baixar a viseira.", rd: "NÃO" },
+            { artigo: "Art. 230, XI", tema: "Escapamento Livre", descricao: "Descarga livre ou silenciador defeituoso.", autuar: "Escapamento esportivo sem abafador ou furado.", naoAutuar: "Escapamento paralelo com abafador íntegro.", medida: "Retenção para regularização.", rd: "SIM, do CRLV" },
+            { artigo: "Art. 244, III", tema: "Malabarismo (Grau)", descricao: "Conduzir fazendo malabarismo.", autuar: "Empinando a moto intencionalmente.", naoAutuar: "Arrancada brusca que levanta levemente a frente (Art. 175).", medida: "Retenção e recolhimento CNH.", rd: "SIM, da CNH" },
+            { artigo: "Art. 230, VI", tema: "Placa Ilegível / Escondida", descricao: "Conduzir com placa sem legibilidade.", autuar: "Placa dobrada ou eliminador de rabeta escondendo os números.", naoAutuar: "Levemente suja de poeira da viagem.", medida: "Retenção/Remoção.", rd: "SIM, do CRLV" }
+        ];
+
+        const bancoInfracoesCaminhao = [
+            { artigo: "Art. 230, IX", tema: "Lona Recolhida / Fitas Refletivas", descricao: "Conduzir com equipamento obrigatório ineficiente ou inoperante.", autuar: "Caminhão com lona enrolada não cobrindo a carga (quando exigido) ou faixas refletivas gastas/cobertas de barro.", naoAutuar: "Lona cobrindo adequadamente (mesmo com furos pequenos) e fitas sujas, mas ainda com boa refletividade.", medida: "Retenção para regularização (esticar lona/limpar fita).", rd: "SIM, do CRLV (Se não sanar no local)" },
+            { artigo: "Art. 231, V", tema: "Excesso de Peso", descricao: "Transitar com excesso de peso (PBT ou Eixo).", autuar: "Ticket da balança rodoviária apontou peso acima do limite legal somado à tolerância.", naoAutuar: "Excesso aferido dentro da margem de tolerância estabelecida.", medida: "Retenção e Transbordo.", rd: "NÃO (O veículo deve aguardar na balança até o transbordo)" },
+            { artigo: "Art. 231, II, 'c'", tema: "Derramamento de Carga", descricao: "Derramar, lançar ou arrastar carga na via.", autuar: "Pedaços de cana, terra, areia ou brita caindo continuamente na pista enquanto transita.", naoAutuar: "Veículo limpo, carga contida, vazando apenas água da chuva após temporal.", medida: "Autuação. Retenção para regularização se for abordado.", rd: "SIM, do CRLV (Se não sanar no local)" },
+            { artigo: "Art. 235", tema: "Carga Mal Acondicionada", descricao: "Carga sem dispositivos de contenção ou acima dos limites.", autuar: "Feixes de cana/madeira muito acima da altura lateral do reboque, sem redes ou cintas adequadas.", naoAutuar: "Carga alta, mas bem amarrada e dentro das dimensões legais de altura/largura.", medida: "Retenção para ajuste ou transbordo.", rd: "SIM, do CRLV" },
+            { artigo: "Art. 230, XIV e X", tema: "Tacógrafo (Cronotacógrafo)", descricao: "Aparelho viciado/defeituoso (XIV) ou em desacordo, como ausência de disco/laudo vencido (X).", autuar: "Aparelho quebrado, sem disco diagrama/fita, sem lacre, ou com certificado do Inmetro vencido.", naoAutuar: "Aparelho funcionando, laudo do Inmetro em dia e disco no prazo (apenas com pequenas rasuras).", medida: "Retenção para regularização.", rd: "SIM, do CRLV (Se o aparelho estiver quebrado ou sem laudo Inmetro)" },
+            { artigo: "Art. 230, XXI", tema: "Falta de Inscrição (Tara / PBT)", descricao: "Veículo de carga com falta de inscrição da tara e demais inscrições legais.", autuar: "Caminhão ou reboque sem as indicações de Tara, Lotação e PBT pintadas ou adesivadas na lateral.", naoAutuar: "Inscrição levemente apagada pelo tempo, mas ainda legível.", medida: "Autuação (Média). Retenção para regularização.", rd: "SIM, do CRLV" }
+        ];
+
+        const bancoInfracoesGeral = [
+            { artigo: "Art. 191", tema: "Forçar Passagem", descricao: "Forçar passagem entre veículos opostos.", autuar: "Tenta ultrapassar fazendo outros desviarem ou frearem.", naoAutuar: "Ultrapassagem normal segura.", medida: "Autuação (Gravíssima x10).", rd: "NÃO" }
+        ];
+
+
         // --- FUNÇÕES DE INTERFACE ---
         function showScreen(screenId) {
             const telas = ['home', 'loc', 'gps', 'mbft', 'juridico', 'links', 'vtr', 'bo'];
@@ -670,7 +736,9 @@
 
         function salvarCCO(conservacao, i) {
             ccoContatos[conservacao] = document.getElementById(`cco_input_${i}`).value;
-            set(dbCcos, ccoContatos); alert("CCO atualizado na nuvem!"); window.buscarDados();
+            // Para poder salvar de fora do módulo, exportamos as funções do db depois
+            if(window.salvarCcoDB) window.salvarCcoDB(ccoContatos);
+            alert("CCO atualizado na nuvem!"); window.buscarDados();
         }
 
         function renderizarEdicaoDPs() {
@@ -683,41 +751,43 @@
 
         function salvarDP(municipio, i) {
             dpsContatos[municipio] = document.getElementById(`dp_input_${i}`).value;
-            set(dbDps, dpsContatos); alert("DP atualizado na nuvem!"); window.buscarDados();
+            if(window.salvarDpDB) window.salvarDpDB(dpsContatos);
+            alert("DP atualizado na nuvem!"); window.buscarDados();
         }
 
         function adicionarItem(tipo) {
             if(tipo==='links') {
                 const n = document.getElementById('link-nome').value, u = document.getElementById('link-url').value;
                 if(!n||!u) return alert("Preencha!");
-                linksGlobais.push({nome:n, url:u}); set(dbLinks, linksGlobais);
+                if(window.addLinkDB) window.addLinkDB({nome:n, url:u});
                 document.getElementById('link-nome').value=''; document.getElementById('link-url').value='';
             }
             if(tipo==='vtr') {
                 const n = document.getElementById('vtr-nome').value, u = document.getElementById('vtr-url').value;
                 if(!n||!u) return alert("Preencha!");
-                vtrsGlobais.push({nome:n, url:u}); set(dbVtrs, vtrsGlobais);
+                if(window.addVtrDB) window.addVtrDB({nome:n, url:u});
                 document.getElementById('vtr-nome').value=''; document.getElementById('vtr-url').value='';
             }
             if(tipo==='bo') {
                 const tit = document.getElementById('bo-titulo').value, txt = document.getElementById('bo-texto-add').value;
                 if(!tit||!txt) return alert("Preencha!");
-                bosGlobais.push({titulo:tit, texto:txt}); set(dbBos, bosGlobais);
+                if(window.addBoDB) window.addBoDB({titulo:tit, texto:txt});
                 document.getElementById('bo-titulo').value=''; document.getElementById('bo-texto-add').value='';
             }
         }
 
         function excluirItem(tipo, i) {
             if(confirm("Excluir para todos?")) {
-                if(tipo==='links'){ linksGlobais.splice(i,1); set(dbLinks, linksGlobais); }
-                if(tipo==='vtr'){ vtrsGlobais.splice(i,1); set(dbVtrs, vtrsGlobais); }
-                if(tipo==='bo'){ bosGlobais.splice(i,1); set(dbBos, bosGlobais); }
+                if(tipo==='links'){ if(window.delLinkDB) window.delLinkDB(i); }
+                if(tipo==='vtr'){ if(window.delVtrDB) window.delVtrDB(i); }
+                if(tipo==='bo'){ if(window.delBoDB) window.delBoDB(i); }
             }
         }
 
         function salvarEdicaoBO(i) {
-            bosGlobais[i].texto = document.getElementById('texto-bo-'+i).value;
-            set(dbBos, bosGlobais); alert("Salvo na nuvem!");
+            const novoTexto = document.getElementById('texto-bo-'+i).value;
+            if(window.editBoDB) window.editBoDB(i, novoTexto);
+            alert("Salvo na nuvem!");
         }
 
         function voltarCategoriasMbft() {
@@ -749,7 +819,7 @@
             else if(abaAtivaMbft==='norm') base = bancoInfracoesNormal;
             else if(abaAtivaMbft==='moto') base = bancoInfracoesMoto;
             else if(abaAtivaMbft==='cam') base = bancoInfracoesCaminhao;
-            else if(abaAtivaMbft==='pesq') base = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao].filter((v,i,a)=>a.findIndex(v2=>v2.artigo===v.artigo)===i);
+            else if(abaAtivaMbft==='pesq') base = [...bancoInfracoesTop15, ...bancoInfracoesNormal, ...bancoInfracoesMoto, ...bancoInfracoesCaminhao, ...bancoInfracoesGeral].filter((v,i,a)=>a.findIndex(v2=>v2.artigo===v.artigo)===i);
             
             let filt = base;
             if(termo) filt = base.filter(i => i.artigo.toLowerCase().includes(termo.toLowerCase()) || i.tema.toLowerCase().includes(termo.toLowerCase()) || i.descricao.toLowerCase().includes(termo.toLowerCase()));
@@ -798,11 +868,11 @@
 
         function renderizarListas() {
             const dL = document.getElementById('lista-links');
-            if(dL) { dL.innerHTML=''; linksGlobais.forEach((it, i) => dL.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('links',${i})">🗑️ Excluir</span>`:''}</div>`); }
+            if(dL) { dL.innerHTML=''; window.linksGlobaisVar.forEach((it, i) => dL.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('links',${i})">🗑️ Excluir da Nuvem</span>`:''}</div>`); }
             const dV = document.getElementById('lista-vtr');
-            if(dV) { dV.innerHTML=''; vtrsGlobais.forEach((it, i) => dV.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('vtr',${i})">🗑️ Excluir</span>`:''}</div>`); }
+            if(dV) { dV.innerHTML=''; window.vtrsGlobaisVar.forEach((it, i) => dV.innerHTML+=`<div class="list-item"><span>${it.nome}</span><a href="${it.url}" target="_blank">${it.url}</a> ${isAdminLogado?`<span class="delete-btn" onclick="window.excluirItem('vtr',${i})">🗑️ Excluir da Nuvem</span>`:''}</div>`); }
             const dB = document.getElementById('lista-bo');
-            if(dB) { dB.innerHTML=''; bosGlobais.forEach((it, i) => dB.innerHTML+=`<div class="bo-card"><div class="bo-header"><strong>${it.titulo}</strong><div class="bo-actions"><button id="btn-visu-${i}" class="btn-visualizar" onclick="window.toggleBO(${i})">👁️ Ver</button><button class="btn-copiar" onclick="window.copiarBO(${i})">📋 Copiar</button></div></div><div id="bo-conteudo-${i}" style="display:none;"><textarea id="texto-bo-${i}" class="bo-texto" ${isAdminLogado?'':'readonly'}>${it.texto}</textarea>${isAdminLogado?`<div class="bo-admin-actions"><button class="btn-bo-edit" onclick="window.salvarEdicaoBO(${i})">💾 Salvar Edição Fixa</button><button class="btn-bo-del" onclick="window.excluirItem('bo',${i})">🗑️ Excluir</button></div>`:''}</div></div>`); }
+            if(dB) { dB.innerHTML=''; window.bosGlobaisVar.forEach((it, i) => dB.innerHTML+=`<div class="bo-card"><div class="bo-header"><strong>${it.titulo}</strong><div class="bo-actions"><button id="btn-visu-${i}" class="btn-visualizar" onclick="window.toggleBO(${i})">👁️ Ver</button><button class="btn-copiar" onclick="window.copiarBO(${i})">📋 Copiar</button></div></div><div id="bo-conteudo-${i}" style="display:none;"><textarea id="texto-bo-${i}" class="bo-texto" ${isAdminLogado?'':'readonly'}>${it.texto}</textarea>${isAdminLogado?`<div class="bo-admin-actions"><button class="btn-bo-edit" onclick="window.salvarEdicaoBO(${i})">💾 Salvar Edição Fixa</button><button class="btn-bo-del" onclick="window.excluirItem('bo',${i})">🗑️ Excluir</button></div>`:''}</div></div>`); }
         }
 
         // --- EXPONDO NO WINDOW ---
@@ -826,7 +896,11 @@
         window.buscarLocalReal = buscarLocalReal;
         window.renderizarListas = renderizarListas;
 
-        // INICIALIZAÇÃO ÚNICA (Resolve o problema da busca)
+        window.linksGlobaisVar = linksPadrao;
+        window.vtrsGlobaisVar = vtrsPadrao;
+        window.bosGlobaisVar = boPadrao;
+
+        // INICIALIZAÇÃO ÚNICA DA TELA
         window.onload = function() {
             const p = document.getElementById('pelotao');
             const pelotoes = [...new Set(malhaRodoviaria.map(item => item.pelotao))].sort();
@@ -834,24 +908,58 @@
             window.updateRodovias();
         };
 
+    </script>
+    
+    <!-- SCRIPT TIPO MODULE COM FIREBASE (CARREGA NO FUNDO) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcyjWfccO9bpWodTq7J0j3llzTyQpl44Y",
+            authDomain: "patrulheiro-1c499.firebaseapp.com",
+            databaseURL: "https://patrulheiro-1c499-default-rtdb.firebaseio.com",
+            projectId: "patrulheiro-1c499",
+            storageBucket: "patrulheiro-1c499.firebasestorage.app",
+            messagingSenderId: "701765264544",
+            appId: "1:701765264544:web:5a5c823a53a18b4fb395c5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const dbLinks = ref(db, 'links');
+        const dbVtrs = ref(db, 'vtrs');
+        const dbBos = ref(db, 'bos');
+        const dbDps = ref(db, 'dps');
+        const dbCcos = ref(db, 'ccos');
+
+        // Exportando as funções de salvar para o escopo global usar
+        window.addLinkDB = (obj) => { window.linksGlobaisVar.push(obj); set(dbLinks, window.linksGlobaisVar); };
+        window.delLinkDB = (i) => { window.linksGlobaisVar.splice(i,1); set(dbLinks, window.linksGlobaisVar); };
+        window.addVtrDB = (obj) => { window.vtrsGlobaisVar.push(obj); set(dbVtrs, window.vtrsGlobaisVar); };
+        window.delVtrDB = (i) => { window.vtrsGlobaisVar.splice(i,1); set(dbVtrs, window.vtrsGlobaisVar); };
+        window.addBoDB = (obj) => { window.bosGlobaisVar.push(obj); set(dbBos, window.bosGlobaisVar); };
+        window.delBoDB = (i) => { window.bosGlobaisVar.splice(i,1); set(dbBos, window.bosGlobaisVar); };
+        window.editBoDB = (i, txt) => { window.bosGlobaisVar[i].texto = txt; set(dbBos, window.bosGlobaisVar); };
+        window.salvarDpDB = (obj) => { set(dbDps, obj); };
+        window.salvarCcoDB = (obj) => { set(dbCcos, obj); };
+
         // FIREBASE LISTENERS
-        onValue(dbLinks, (s) => { const d = s.val(); if(d) linksGlobais=d; else{ linksGlobais=linksPadrao; set(dbLinks, linksGlobais); } window.renderizarListas(); });
-        onValue(dbVtrs, (s) => { const d = s.val(); if(d) vtrsGlobais=d; else{ vtrsGlobais=vtrsPadrao; set(dbVtrs, vtrsGlobais); } window.renderizarListas(); });
-        onValue(dbBos, (s) => { const d = s.val(); if(d) bosGlobais=d; else{ bosGlobais=boPadrao; set(dbBos, bosGlobais); } window.renderizarListas(); });
+        onValue(dbLinks, (s) => { const d = s.val(); if(d) window.linksGlobaisVar=d; else set(dbLinks, window.linksGlobaisVar); window.renderizarListas(); });
+        onValue(dbVtrs, (s) => { const d = s.val(); if(d) window.vtrsGlobaisVar=d; else set(dbVtrs, window.vtrsGlobaisVar); window.renderizarListas(); });
+        onValue(dbBos, (s) => { const d = s.val(); if(d) window.bosGlobaisVar=d; else set(dbBos, window.bosGlobaisVar); window.renderizarListas(); });
         
+        // Puxando Telefones
         onValue(dbDps, (s) => { 
             const d = s.val(); 
-            if(d) { dpsContatos=d; } 
-            else { set(dbDps, dpsContatos); }
-            if(isAdminLogado) window.renderizarEdicaoDPs(); 
+            if(d) { Object.assign(dpsContatos, d); } else { set(dbDps, dpsContatos); }
             window.buscarDados();
         });
         
         onValue(dbCcos, (s) => { 
             const d = s.val(); 
-            if(d) { ccoContatos=d; } 
-            else { set(dbCcos, ccoContatos); }
-            if(isAdminLogado) window.renderizarEdicaoCCOs(); 
+            if(d) { Object.assign(ccoContatos, d); } else { set(dbCcos, ccoContatos); }
             window.buscarDados();
         });
     </script>
